@@ -1,0 +1,48 @@
+.footer-widget, .header-seperation, .page-sidebar, .details-status, .header .notifcation-center, .page-sidebar.mini{
+	background-color: #161616 !important;
+}
+.header .nav > li.dropdown .active, .page-sidebar.mini .page-sidebar-wrapper > ul > li > a:hover, .page-sidebar.mini .page-sidebar-wrapper > ul > li:hover > a{
+	background-color: 131112;
+}
+.page-sidebar .page-sidebar-wrapper > ul > li.open > a, .page-sidebar .page-sidebar-wrapper > ul > li > a:hover, .page-sidebar .page-sidebar-wrapper > ul > li:hover > a{
+	background-color: #131112;
+}
+.page-sidebar .page-sidebar-wrapper > ul > li > a, .page-sidebar .page-sidebar-wrapper > ul > li a i{
+	color: white;
+}
+.page-sidebar .page-sidebar-wrapper > ul > li > ul.sub-menu {
+	background-color: #161616 !important;
+}
+.page-sidebar .page-sidebar-wrapper > ul > li > ul.sub-menu > li a:hover {
+	background-color: #131112 !important;
+}
+.page-sidebar .page-sidebar-wrapper > ul > li > ul.sub-menu > li.active{
+	background-color: #131112 !important;
+}
+.page-sidebar .page-sidebar-wrapper > ul > li.active {
+	background-color: #131112 !important;
+}
+/*Color del span del menu active*/
+.page-sidebar .page-sidebar-wrapper > ul > li.active > a, .page-sidebar .page-sidebar-wrapper > ul > li.active > a i {
+	color: #F9D501;
+}
+/*Color del span del menu en hover active*/
+.page-sidebar .page-sidebar-wrapper > ul > li.active > a:hover, .page-sidebar .page-sidebar-wrapper > ul > li.active > a i:hover {
+	color: #F9D501!important;
+}
+/*Color del span del menu en hover normal*/
+.page-sidebar .page-sidebar-wrapper > ul > li > a:hover {
+	color: #F9D501!important;
+}
+/*Hover a los íconos en hover tanto cuando están activas como cuando no lo están*/
+.page-sidebar .page-sidebar-wrapper > ul > li.active:hover > a i, .page-sidebar .page-sidebar-wrapper > ul > li:hover > a i{
+	color: #F9D501!important;
+}
+/*Submenu hover*/
+.page-sidebar .page-sidebar-wrapper > ul > li > ul.sub-menu > li:hover{
+	color: #F9D501!important;
+}
+/*Submenu active*/
+.page-sidebar .page-sidebar-wrapper > ul > li > ul.sub-menu > li.active a{
+	color: #F9D501!important;
+}
