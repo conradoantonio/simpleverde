@@ -21,11 +21,11 @@ textarea {
                     <div class="tiles-body">
                         <div class="controller"> <a href="javascript:;" class=""></a> <a href="javascript:;" class="remove"></a> </div>
                         <div class="tiles-title"> Total de empresas </div>
-                        <div class="heading"> <span class="animate-number" data-value="26" data-animation-duration="1000">0</span> </div>
+                        <div class="heading"> <span class="animate-number" data-value="{{$dashboard->total_empresas}}" data-animation-duration="1000">0</span> </div>
                         <div class="progress transparent progress-small no-radius">
                             <div class="progress-bar progress-bar-white animate-progress-bar" data-percentage="100%" ></div>
                         </div>
-                        <div class="description"><span class="text-white mini-description ">Hechas desde la app</span></div>
+                        <div class="description"><span class="text-white mini-description ">Disponibles en el panel</span></div>
                     </div>
                 </div>
             </div>
@@ -34,7 +34,7 @@ textarea {
                     <div class="tiles-body">
                         <div class="controller"> <a href="javascript:;" class=""></a> <a href="javascript:;" class="remove"></a> </div>
                         <div class="tiles-title"> Total de empleados </div>
-                        <div class="heading"> <span class="animate-number" data-value="2" data-animation-duration="1200">0</span> </div>
+                        <div class="heading"> <span class="animate-number" data-value="{{$dashboard->total_empleados}}" data-animation-duration="1200">0</span> </div>
                         <div class="progress transparent progress-small no-radius">
                             <div class="progress-bar progress-bar-white animate-progress-bar" data-percentage="100%"></div>
                         </div>
@@ -47,11 +47,11 @@ textarea {
                     <div class="tiles-body">
                         <div class="controller"> <a href="javascript:;" class=""></a> <a href="javascript:;" class="remove"></a> </div>
                         <div class="tiles-title"> Usuarios sistema </div>
-                        <div class="heading"> <span class="animate-number" data-value="2" data-animation-duration="1200">0</span> </div>
+                        <div class="heading"> <span class="animate-number" data-value="{{$dashboard->total_usuarios}}" data-animation-duration="1200">0</span> </div>
                         <div class="progress transparent progress-white progress-small no-radius">
                             <div class="progress-bar progress-bar-white animate-progress-bar" data-percentage="" ></div>
                         </div>
-                        <div class="description"><span class="text-white mini-description ">Administradores </span></div>
+                        <div class="description"><span class="text-white mini-description ">Activos en el sistema </span></div>
                     </div>
                 </div>
             </div>
@@ -59,14 +59,14 @@ textarea {
                 <div class="tiles purple added-margin">
                     <div class="tiles-body">
                         <div class="controller"> <a href="javascript:;" class=""></a> <a href="javascript:;" class="remove"></a> </div>
-                            <div class="tiles-title"> Lorem upsim </div>
+                            <div class="tiles-title"> Total de listas pagadas </div>
                             <div class="row-fluid">
-                            <div class="heading"><span class="animate-number" data-value="54" data-animation-duration="700">0</span> </div>
+                            <div class="heading"><span class="animate-number" data-value="{{$dashboard->total_listas_pagadas}}" data-animation-duration="700">0</span> </div>
                             <div class="progress transparent progress-white progress-small no-radius">
                                 <div class="progress-bar progress-bar-white animate-progress-bar" data-percentage="100%"></div>
                             </div>
                         </div>
-                        <div class="description"><span class="text-white mini-description ">Ut enim ad minim veniam</span></div>
+                        <div class="description"><span class="text-white mini-description ">Finalizadas desde el sistema</span></div>
                     </div>
                 </div>
             </div>

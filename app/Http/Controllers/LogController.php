@@ -6,9 +6,10 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Requests\loginRequest;
 use App\Http\Controllers\Controller;
-use App\Usuario;
-use App\Servicio;
-use App\Cotizaciones;
+use App\Empleado;
+use App\Empresa;
+use App\Pago;
+use App\User;
 use DB;
 use Session;
 use Auth;
@@ -27,10 +28,10 @@ class LogController extends Controller
         if (Auth::check()) {
             $title = 'Inicio';
             $menu = 'Inicio';
-            //$dashboard = $this->dashboard_data_admin();
+            $dashboard = $this->dashboard_data_admin();
             //$ventas_semanales = $this->obtener_ventas_semanales();
 
-            return view('admin.dashboard', ['title' => $title, 'menu' => $menu/*, 'dashboard' => json_decode($dashboard), 'ventas_semanales' => $ventas_semanales*/]);
+            return view('admin.dashboard', ['title' => $title, 'menu' => $menu, 'dashboard' => json_decode($dashboard)/*, 'ventas_semanales' => $ventas_semanales*/]);
         } else {
             return redirect::to('/');
         }
@@ -68,11 +69,10 @@ class LogController extends Controller
     {
         $main_data = new \stdClass();
 
-        $main_data->total_usuarios_app = Usuario::total_usuarios_app();
-        $main_data->usuarios_bloqueados_app = Usuario::usuarios_bloqueados_app();
-        $main_data->total_servicios = Servicio::total_servicios();
-        $main_data->total_vendido = Servicio::total_vendido();
-        $main_data->porcentaje_usuarios_bloqueados = round((($main_data->usuarios_bloqueados_app / $main_data->total_usuarios_app) * 100), 2, PHP_ROUND_HALF_DOWN);
+        $main_data->total_empresas = Empresa::where('status', 1)->count();
+        $main_data->total_empleados = Empleado::where('status', 1)->count();
+        $main_data->total_usuarios = User::where('status', 1)->count();
+        $main_data->total_listas_pagadas = Pago::where('status', 0)->count();
 
         return json_encode($main_data);
     }
