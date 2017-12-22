@@ -44,7 +44,7 @@
                 <!-- END MOBILE HEADER -->
                 <!-- BEGIN LOGO -->
                 <a href="{{url('dashboard')}}">
-                    <img src="{{ asset('img/logo.png') }}" class="logo" alt="" data-src="{{ asset('img/logo.png') }}" data-src-retina="{{ asset('img/logo.png') }}" width="106" height="21"/>
+                    <img src="{{ asset('img/logo.png') }}" class="logo" alt="" data-src="{{ asset('img/logo.png') }}" data-src-retina="{{ asset('img/logo.png') }}" width="115" height="12"/>
                 </a>
                 <!-- END LOGO -->
                 <!-- BEGIN LOGO NAV BUTTONS -->
@@ -66,7 +66,7 @@
                     <ul class="nav quick-section">
                         <li class="quicklinks">
                             <a href="#" class="" id="layout-condensed-toggle">
-                                <div class="iconset top-menu-toggle-dark"></div>
+                                <div class="iconset top-menu-toggle-white"></div>
                             </a>
                         </li>
                     </ul>
@@ -80,7 +80,7 @@
                         <a href="#" class="dropdown-toggle" id="my-task-list" data-placement="bottom" data-content="">
                             <div class="user-details">
                                 <div class="username">
-                                    <span class="badge badge-important"></span><span>Privilegios: {{(auth()->user()->type == 1 ? 'Administrador' : (auth()->user()->type == 2 ? 'Nómina' : (auth()->user()->type == 3 ? 'Supervisor' : 'Desconocido')))}}</span>
+                                    <span class="badge badge-important"></span><span style="color: white;">Privilegios: {{(auth()->user()->type == 1 ? 'Administrador' : (auth()->user()->type == 2 ? 'Nómina' : (auth()->user()->type == 3 ? 'Supervisor' : 'Desconocido')))}}</span>
                                 </div>
                             </div>
                             <div class="iconset"></div>
@@ -98,7 +98,7 @@
                         <!-- BEGIN SETTINGS -->
                         <li class="quicklinks">
                             <a data-toggle="dropdown" class="dropdown-toggle pull-right" href="#" id="user-options">
-                                <div class="iconset top-settings-dark"></div>
+                                <div class="iconset top-settings"></div>
                             </a>
                             <ul class="dropdown-menu pull-right" role="menu" aria-labelledby="user-options">
                                 <li><a data-toggle="modal" data-target="#cambiar_foto_usuario_sistema" href="#"><i class="fa fa-picture-o" aria-hidden="true"></i> Cambiar foto perfil</a></li>
