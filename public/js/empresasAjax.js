@@ -28,14 +28,14 @@ function subirEmpresa(button) {
     });
 }
 
-function eliminarEmpresa(id,token) {
+function eliminarEmpresa(id,activar) {
     url = base_url.concat('/empresas/baja');
     $.ajax({
         method: "POST",
         url: url,
         data:{
             "id":id,
-            "_token":token
+            "status":activar
         },
         success: function() {
             refreshTable(window.location.href);
@@ -51,7 +51,7 @@ function eliminarEmpresa(id,token) {
     });
 }
 
-function eliminarMultiplesEmpresas(checking, token) {
+function eliminarMultiplesEmpresas(checking, activar) {
     console.info(checking);
     url = base_url.concat('/empresas/baja/multiple');
     $.ajax({
@@ -59,7 +59,7 @@ function eliminarMultiplesEmpresas(checking, token) {
         url: url,
         data:{
             "checking":checking,
-            "_token":token
+            "status":activar
         },
         success: function(data) {
             refreshTable(window.location.href);

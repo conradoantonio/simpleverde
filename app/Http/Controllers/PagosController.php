@@ -23,13 +23,17 @@ class PagosController extends Controller
 	 *
 	 * @return \Illuminate\Http\Response
 	 */
-	public function index()
+	public function index(Request $req)
 	{
-		 if (auth()->check()) {
+		if (auth()->check()) {
 			$menu = $title = "Lista de asistencia";
 			$pagos = Pago::where('status', '!=', '0')->get();
 
-			$check = 0;
+			#dd($pagos[0]->PagoUsuarios()->delete());
+
+			if ($req->ajax()){
+				return view('pagos.tabla', ['pagos' => $pagos]);
+			}
 			return view('pagos.pagos', ['pagos' => $pagos, 'menu' => $menu, 'title' => $title]);
 		} else {
 			return redirect()->to('/');
@@ -47,7 +51,7 @@ class PagosController extends Controller
 			$menu = $title = "Historial";
 			$pagos = Pago::where('status', '0')->get();
 
-			$check = 0;
+			
 			return view('pagos.pagos', ['pagos' => $pagos, 'menu' => $menu, 'title' => $title]);
 		} else {
 			return redirect()->to('/');
@@ -70,6 +74,19 @@ class PagosController extends Controller
 				$usuarioPago->pago_id = $pago->id;
 				$usuarioPago->trabajador_id = $value;
 				$usuarioPago->save();
+
+				$startTime = strtotime( $usuarioPago->pago->fecha_inicio );
+				$endTime = strtotime( $usuarioPago->pago->fecha_fin );
+
+				// Loop between timestamps, 24 hours at a time
+				for ( $i = $startTime; $i <= $endTime; $i = $i + 86400 ) {
+					$d = date( 'd', $i );
+					$asistencia = new Asistencia();
+					$asistencia->usuario_pago_id = $usuarioPago->id;
+					$asistencia->dia = $d;
+					$asistencia->status = '';
+					$asistencia->save();
+				}
 			}
 
 			return redirect()->action('PagosController@index')->with([ 'msg' => 'Lista de asistencia guardada', 'class' => 'alert-success' ]);
@@ -81,31 +98,133 @@ class PagosController extends Controller
 	/**
 	 * Display the specified resource.
 	 *
-	 * @param  int  $id
-	 * @return \Illuminate\Http\Response
 	 */
-	public function show($id)
+	public function show($id, $reload = false)
 	{
 		$title = "Lista de asistencia";
 		$menu = "Lista de asistencia";
 		$pago = Pago::with(['empresa', 'servicio'])->findOrFail($id);
+		$trabajadores = Empleado::where('status',1)->get();
 
 		$startTime = strtotime( $pago->fecha_inicio );
 		$endTime = strtotime( $pago->fecha_fin );
 		$days_ago = date('d', strtotime('-3 days'));
+		
+		$date1=date_create(date('Y-m-d'));
+		$date2=date_create(date('Y-m-d', strtotime( "-3 days")));
+		$diff=date_diff($date1,$date2);
 
 		// Loop between timestamps, 24 hours at a time
+
 		for ( $i = $startTime; $i <= $endTime; $i = $i + 86400 ) {
 			$edit = false;
 			$d = date( 'd', $i );
-			if ( $d >= $days_ago && $d <= date('d') ){
+			/*if ( date('Y-m-d', strtotime("now")) == date('Y-m-d', $startTime) ){
+				if ( $d <= date('d') ){
+					$edit = true;
+				}	
+			} elseif ( $d >= $days_ago && $d <= date('d') ){
 				$edit = true;
-			}
+			}*/
+
 			$days[] = ['dia' => date('w', $i), 'num' => $d, 'edit' => $edit];
 		}
-		$asistencias = Asistencia::whereIn('usuario_pago_id',$pago->PagoUsuarios->pluck('id'))->get();
 
-		return view('pagos.detalle', ['pago' => $pago, 'dias' => $days, 'menu' => $menu, 'title' => $title, 'asistencias' => $asistencias]);
+
+		$today = date('Y-m-d');
+	    $today = date('Y-m-d', strtotime($today));
+	    $inicio_d = date('Y-m-d', strtotime($pago->fecha_inicio));
+	    $fin_d = date('Y-m-d', strtotime($pago->fecha_fin));
+
+	    $c = $diff->d;
+	    $dia = array();
+	    while( $c > 0 ){
+	    	$dia[] = date('d', strtotime(sprintf("-%d days", ($c))));
+	    	$c--;
+	    }
+
+	    #if (($today >= $inicio_d) && ($today < $fin_d)){
+			foreach ($days as &$day) {
+				#echo $dia."<br>";
+				if ( $day['num'] == $dia[0] || $day['num'] == $dia[1] || $day['num'] == $dia[2] || $day['num'] == date('d') ){
+		    		$day['edit'] = true;
+		    	}
+			}
+		#}
+
+		$asistencias = Asistencia::whereIn('usuario_pago_id',$pago->PagoUsuarios->pluck('id'))->get();
+		if ($reload) {
+			return view('pagos.tabla_asistencias', ['pago' => $pago, 'trabajadores' => $trabajadores, 'pago_id' => $id, 'dias' => $days, 'asistencias' => $asistencias]);
+		}
+		return view('pagos.detalle', ['pago' => $pago, 'trabajadores' => $trabajadores, 'pago_id' => $id, 'dias' => $days, 'menu' => $menu, 'title' => $title, 'asistencias' => $asistencias]);
+	}
+
+	/**
+	 * Elimina una lista de asistencias con sus registros.
+	 *
+	 */
+	public function eliminar_listas(Request $req)
+	{
+		$listas = Pago::whereIn('id', $req->checking);
+		if ($listas->get()) {
+			foreach ($listas->get() as $key => $lista) {
+				foreach ($lista->PagoUsuarios as $pago_usuario){
+					$pago_usuario->asistencia()->delete();//Elimina las asistencias
+				}
+				$lista->PagoUsuarios()->delete();//Elimina los PagoUsuarios
+			}
+			$listas->delete();//Elimina la lista
+			return response(['msg' => 'Éxito borrando la lista', 'status' => 'ok'], 200);
+		} else {
+			return response(['msg' => 'No se encontraron listas para borrar', 'status' => 'error'], 404);
+		}
+	}
+
+	/**
+	 * Agrega un trabajador a una lista de pago.
+	 *
+	 * @param  int  $id
+	 * @return \Illuminate\Http\Response
+	 */
+	public function add_worker(Request $req)
+	{
+		foreach ($req->trabajadores as $value) {
+			$usuarioPago = new UsuarioPago();
+			$usuarioPago->pago_id = $req->pago_id;
+			$usuarioPago->trabajador_id = $value;
+			$usuarioPago->save();
+
+			$startTime = strtotime( $usuarioPago->pago->fecha_inicio );
+			$endTime = strtotime( $usuarioPago->pago->fecha_fin );
+
+			// Loop between timestamps, 24 hours at a time
+			for ( $i = $startTime; $i <= $endTime; $i = $i + 86400 ) {
+				$d = date( 'd', $i );
+				$asistencia = new Asistencia();
+				$asistencia->usuario_pago_id = $usuarioPago->id;
+				$asistencia->dia = $d;
+				$asistencia->status = '';
+				$asistencia->save();
+			}
+		}
+	}
+
+	/**
+	 * Elimina empleados de la lista de pagos.
+	 *
+	 * @param  int  $id
+	 * @return \Illuminate\Http\Response
+	 */
+	public function eliminar_empleados_lista(Request $req)
+	{
+		$usuario_pagos = UsuarioPago::whereIn('id', $req->checking)->delete();
+		$asistencias = Asistencia::whereIn('usuario_pago_id', $req->checking)->delete();
+
+		if ($asistencias && $usuario_pagos){
+        	return response(['msg' => 'Empleados eliminados correctamente', 'status' => 'ok'], 200);
+		} else {
+	        return response(['msg' => 'Error al eliminar los empleados de la lista', 'status' => 'error'], 404);
+		}
 	}
 
 	/**
@@ -124,8 +243,10 @@ class PagosController extends Controller
 		->whereIn('usuario_pago_id',$pago->PagoUsuarios->pluck('id'))
 		#->whereIn('status',['D','X','V'])
 		->groupBy('usuario_pago_id')
-		->select(DB::raw("usuario_pago_id, COUNT( case status when 'D' then 1 else null end OR case status when 'X' then 1 else null end OR case status when 'V' then 1 else null end ) AS total, 
-			COUNT( case status when 'A' then 1 else null end ) as festivo"))
+		->select(DB::raw("usuario_pago_id, COUNT( case status when 'D' then 1 else null end OR case status when 'X' then 1 else null end OR case status when 'V' then 1 else null end 
+			OR case asistencias.status when 'C' then 1 else null end OR case asistencias.status when 'N' then 1 else null end) AS total,
+			COUNT( case status when 'A' then 1 else null end ) as festivo, COUNT( case status when 'C' then 1 else null end ) as diurno, 
+			COUNT( case status when 'N' then 1 else null end ) as nocturno"))
 		->get();
 
 		$pago_actualizado = DB::table('pagos')->where('id', $id)->update(['status' => 0]);//Se marca el pago como pagado
@@ -194,10 +315,10 @@ class PagosController extends Controller
 	 */
 	public function descargar_excel_master(Request $request)
 	{
-		$file = public_path()."/excel/master.xlsx";
-		return response()->download($file, 'master.xlsx');
+		$file = public_path()."/excel/Master_TP.xlsm";
+		return response()->download($file, 'Master_TP.xlsm');
 	}
-		
+
 
 	/**
      *===============================================================================================================================================================================
@@ -226,31 +347,45 @@ class PagosController extends Controller
 		$pago = Pago::findOrFail($id);
 		$intervalo = date('d-M-Y', strtotime($pago->fecha_inicio)).' al '.date('d-M-Y', strtotime($pago->fecha_fin));
 
-		$asistencias = Asistencia::leftJoin('usuario_pagos', 'usuario_pagos.id', '=', 'asistencias.usuario_pago_id')
-		->leftJoin('empleados', 'empleados.id', '=', 'usuario_pagos.trabajador_id')
-		->leftJoin('pagos', 'pagos.id', '=', 'usuario_pagos.pago_id')
-		->leftJoin('empresa_servicio', 'empresa_servicio.id', '=', 'pagos.servicio_id')
-		->leftJoin('empresas', 'empresas.id', '=', 'empresa_servicio.empresa_id')
+		$asistencias = Asistencia::with(['pago.usuarios', 'pago.pago.servicio'])
 		->whereIn('usuario_pago_id',$pago->PagoUsuarios->pluck('id'))
+		#->whereIn('status',['D','X','V'])
 		->groupBy('usuario_pago_id')
-		->select(DB::raw('CONCAT(empleados.nombre, " ",empleados.apellido) AS "Nombre completo", ROUND(COUNT(empresa_servicio.sueldo_diario_guardia) * sueldo_diario_guardia, 2) AS "Importe", 
-			empleados.num_cuenta AS "Número de cuenta", empleados.num_empleado AS "Número de Id", CONCAT(DATE_FORMAT(pagos.fecha_inicio,  "%d %b %Y"), " - ", DATE_FORMAT(pagos.fecha_fin,  "%d %b %Y")) AS "Fecha de pagos", 
-			COUNT( case asistencias.status when "D" then 1 else null end OR case asistencias.status when "X" then 1 else null end OR case asistencias.status when "V" then 1 else null end ) AS "Días",
-			COUNT( case asistencias.status when "A" then 1 else null end ) as "Días festivos", empresas.nombre AS "Empresa"'))
+		->select(DB::raw("usuario_pago_id, COUNT( case status when 'D' then 1 else null end OR case status when 'X' then 1 else null end OR case status when 'V' then 1 else null end 
+			OR case asistencias.status when 'C' then 1 else null end OR case asistencias.status when 'N' then 1 else null end) AS total,
+			COUNT( case status when 'A' then 1 else null end ) as festivo, COUNT( case status when 'C' then 1 else null end ) as diurno, 
+			COUNT( case status when 'N' then 1 else null end ) as nocturno"))
 		->get();
 
-        Excel::create("Resumen de asistencias del $intervalo", function($excel) use($asistencias) {
-            $excel->sheet('Hoja 1', function($sheet) use($asistencias) {
-                $sheet->cells('A:G', function($cells) {
+		$array = array();
+
+		foreach ($asistencias as $asistencia) {
+			$array[] = [
+				'Nombre completo' => $asistencia->pago->usuarios->nombre.' '.$asistencia->pago->usuarios->apellido_paterno.' '.$asistencia->pago->usuarios->apellido_materno,
+				'Importe ' => number_format($asistencia->pago->pago->servicio->sueldo_diario_guardia*$asistencia->total,2),
+				'Número de cuenta' => $asistencia->pago->usuarios->num_cuenta,
+				'Número de empleado' => $asistencia->pago->usuarios->num_empleado,
+				'Fecha de pagos' => date('d M Y', strtotime($asistencia->pago->pago->fecha_inicio)).' - '.date('d M Y', strtotime($asistencia->pago->pago->fecha_fin)),
+				'Días' => $asistencia->total,
+				'Dias festivos' => $asistencia->festivo,
+				'Turnos diurnos' => $asistencia->diurno,
+				'Turnos nocturnos' => $asistencia->nocturno,
+				'Empresa ' => $pago->empresa->nombre
+			];
+		}
+
+        Excel::create("Resumen de asistencias del $intervalo", function($excel) use($array) {
+            $excel->sheet('Hoja 1', function($sheet) use($array) {
+                $sheet->cells('A:J', function($cells) {
                     $cells->setAlignment('center');
                     $cells->setValignment('center');
                 });
-                
-                $sheet->cells('A1:G1', function($cells) {
+
+                $sheet->cells('A1:J1', function($cells) {
                     $cells->setFontWeight('bold');
                 });
 
-                $sheet->fromArray($asistencias);
+                $sheet->fromArray($array);
             });
         })->export('xlsx');
 
@@ -279,7 +414,7 @@ class PagosController extends Controller
 		}
 
 		$asistencias = Asistencia::whereIn('usuario_pago_id',$pago->PagoUsuarios->pluck('id'))->get();
-		
+
 		//return view('pagos.detalle', ['pago' => $pago, 'dias' => $days, 'menu' => $menu, 'title' => $title, 'asistencias' => $asistencias]);
 
 		$pdf = PDF::loadView('pagos.detalle_asistencias_pdf', ['pago' => $pago, 'dias' => $days, 'asistencias' => $asistencias])

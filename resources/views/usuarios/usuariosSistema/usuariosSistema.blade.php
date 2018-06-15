@@ -44,12 +44,12 @@ input:-webkit-autofill {
                                 </div>
                             </div>
                             <div class="form-group col-md-12">
-                                <label for="tipo_id">Tipo de usuario</label>
-                                <select name="tipo_id" id="tipo_id" class="form-control">
+                                <label for="role_id">Tipo de usuario</label>
+                                <select name="role_id" id="role_id" class="form-control">
                                     <option value="0">Seleccionar tipo de usuario</option>
-                                    <option value="1">Administrador</option>
-                                    <option value="2">Nóminas</option>
-                                    <option value="3">Supervisor</option>
+                                    @foreach($roles as $rol)
+                                        <option value="{{$rol->id}}">{{$rol->rol}}</option>
+                                    @endforeach
                                 </select>
                             </div>
                             <div class="col-sm-12 col-xs-12">
@@ -139,10 +139,10 @@ $('#formulario-usuario-sistema').on('hidden.bs.modal', function (e) {
 });
 
 $('body').delegate('button#nuevo-usuario','click', function() {
-    $('input.form-control').val('');
     $('div#foto_usuario').hide();
     $("div#input_foto_usuario").hide();
     $("h4#titulo-form-usuario-sistema").text('Nuevo usuario (sistema)');
+    $('input.form-control').val('');
 });
 
 $('body').delegate('.editar-usuario','click', function() {
@@ -152,7 +152,7 @@ $('body').delegate('.editar-usuario','click', function() {
     user = $(this).parent().siblings("td:nth-child(2)").text(),
     email = $(this).parent().siblings("td:nth-child(3)").text(),
     imagen = $(this).parent().siblings("td:nth-child(4)").text(),
-    tipo_id = $(this).parent().siblings("td:nth-child(5)").text(),
+    role_id = $(this).parent().siblings("td:nth-child(5)").text(),
 
     $("h4#titulo-form-usuario-sistema").text('Editar usuario');
     $("div#input_foto_usuario").show();
@@ -160,7 +160,7 @@ $('body').delegate('.editar-usuario','click', function() {
     $("#formulario-usuario-sistema input#user_name").val(user);
     $("#formulario-usuario-sistema input#user_name_old").val(user);
     $("#formulario-usuario-sistema input#email").val(email);
-    $('#formulario-usuario-sistema select#tipo_id').val(tipo_id);
+    $('#formulario-usuario-sistema select#role_id').val(role_id);
 
     $('#formulario-usuario-sistema div#usuario_caracteristicas').hide();
 

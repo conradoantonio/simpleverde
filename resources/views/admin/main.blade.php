@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title>@yield('title', isset($title) ? $title .' | Pagos Topali' : 'Pagos Topali')</title>
+    <title>@yield('title', isset($title) ? $title .' | Pagos Simple Verde' : 'Pagos Simple Verde')</title>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -80,7 +80,7 @@
                         <a href="#" class="dropdown-toggle" id="my-task-list" data-placement="bottom" data-content="">
                             <div class="user-details">
                                 <div class="username">
-                                    <span class="badge badge-important"></span><span style="color: white;">Privilegios: {{(auth()->user()->type == 1 ? 'Administrador' : (auth()->user()->type == 2 ? 'Nómina' : (auth()->user()->type == 3 ? 'Supervisor' : 'Desconocido')))}}</span>
+                                    <span class="badge badge-important"></span><span style="color: white;">Rol: {{auth()->user()->role->rol}}</span>
                                 </div>
                             </div>
                             <div class="iconset"></div>
@@ -150,27 +150,51 @@
                 </li>
                 <!-- END SELECTED LINK -->
 
-                @if(auth()->user()->type != 3)
+                @if(auth()->user()->role->rol == 'Administrador' || auth()->user()->role->rol == 'Nóminas' || auth()->user()->role->rol == 'Recepción' || auth()->user()->role->rol == 'Captura (clientes)')
                     <!-- BEGIN SINGLE LINK -->
-                    <li class="{{$menu == 'Clientes' ? 'active' : ''}}">
+                    <li class="{{$menu == 'Clientes (Activos)' ? 'active' : ''}}">
                         <a href="{{url('empresas')}}">
-                            <i class="fa fa-building" aria-hidden="true"></i>
-                            <span class="title">Clientes</span>
+                            <i class="fa fa-address-book-o" aria-hidden="true"></i>
+                            <span class="title">Clientes (Activos)</span>
                         </a>
                     </li>
                     <!-- END SINGLE LINK -->
                 @endif
 
-                <!-- BEGIN SINGLE LINK -->
-                <li class="{{$menu == 'Empleados' ? 'active' : ''}}">
-                    <a href="{{url('empleados')}}">
-                        <i class="fa fa-address-card" aria-hidden="true"></i>
-                        <span class="title">Empleados</span>
-                    </a>
-                </li>
-                <!-- END SINGLE LINK -->
+                @if(auth()->user()->role->rol == 'Administrador' || auth()->user()->role->rol == 'Nóminas' || auth()->user()->role->rol == 'Recepción' || auth()->user()->role->rol == 'Captura (clientes)')
+                    <!-- BEGIN SINGLE LINK -->
+                    <li class="{{$menu == 'Clientes (Inactivos)' ? 'active' : ''}}">
+                        <a href="{{url('empresas/inactivas')}}">
+                            <i class="fa fa-address-book" aria-hidden="true"></i>
+                            <span class="title">Clientes (Inactivos)</span>
+                        </a>
+                    </li>
+                    <!-- END SINGLE LINK -->
+                @endif
 
-                @if(auth()->user()->type == 1)
+                @if(auth()->user()->role->rol == 'Administrador' || auth()->user()->role->rol == 'Nóminas' || auth()->user()->role->rol == 'Recepción' || auth()->user()->role->rol == 'Captura (empleados)')
+                    <!-- BEGIN SINGLE LINK -->
+                    <li class="{{$menu == 'Empleados (Activos)' ? 'active' : ''}}">
+                        <a href="{{url('empleados')}}">
+                            <i class="fa fa-user" aria-hidden="true"></i>
+                            <span class="title">Empleados (Activos)</span>
+                        </a>
+                    </li>
+                    <!-- END SINGLE LINK -->
+                @endif
+
+                @if(auth()->user()->role->rol == 'Administrador' || auth()->user()->role->rol == 'Nóminas' || auth()->user()->role->rol == 'Recepción' || auth()->user()->role->rol == 'Captura (empleados)')
+                    <!-- BEGIN SINGLE LINK -->
+                    <li class="{{$menu == 'Empleados (Inactivos)' ? 'active' : ''}}">
+                        <a href="{{url('empleados/inactivos')}}">
+                            <i class="fa fa-user-times" aria-hidden="true"></i>
+                            <span class="title">Empleados (Inactivos)</span>
+                        </a>
+                    </li>
+                    <!-- END SINGLE LINK -->
+                @endif
+
+                @if(auth()->user()->role->rol == 'Administrador')
                     <!-- BEGIN ONE LEVEL MENU -->
                     <li class="{{$menu == 'Usuarios' ? 'active' : ''}}">
                         <a href="{{url('usuarios/sistema')}}">
@@ -178,36 +202,30 @@
                             <span class="title">Usuarios (sistema)</span>
                         </a>
                     </li>
-                    <!-- END ONE LEVEL MENU -->
+                    <!-- END SINGLE LINK -->
                 @endif
-                {{-- <li class="{{$menu == 'Usuarios' ? 'open start' : ''}}">
-                    <a href="javascript:;">
-                        <i class="fa fa-users" aria-hidden="true"></i>
-                        <span class="title">Usuarios</span>
-                        <span class="{{$menu == 'Usuarios' ? 'arrow open' : 'arrow'}}"></span>
-                    </a>
-                    <ul class="sub-menu" style="{{$menu == 'Usuarios' ? 'display: block;' : ''}}">
-                        <li class="{{$title == 'Usuarios Sistema' ? 'active' : ''}}"><a href="{{url('usuarios/sistema')}}">Usuarios (sistema)</a></li>
-                    </ul>
-                </li> --}}
 
-                <!-- BEGIN SINGLE LINK -->
-                <li class="{{$menu == 'Lista de asistencia' ? 'active' : ''}}">
-                    <a href="{{url('nominas')}}">
-                        <i class="fa fa-check" aria-hidden="true"></i>
-                        <span class="title">Asistencias</span>
-                    </a>
-                </li>
-                <!-- END SINGLE LINK -->
+                @if(auth()->user()->role->rol == 'Administrador' || auth()->user()->role->rol == 'Nóminas' || auth()->user()->role->rol == 'Recepción')
+                    <!-- BEGIN SINGLE LINK -->
+                    <li class="{{$menu == 'Lista de asistencia' ? 'active' : ''}}">
+                        <a href="{{url('nominas')}}">
+                            <i class="fa fa-check" aria-hidden="true"></i>
+                            <span class="title">Asistencias</span>
+                        </a>
+                    </li>
+                    <!-- END SINGLE LINK -->
+                @endif
 
-                <!-- BEGIN SINGLE LINK -->
-                <li class="{{$menu == 'Historial' ? 'active' : ''}}">
-                    <a href="{{url('historial')}}">
-                        <i class="fa fa-check-square-o" aria-hidden="true"></i>
-                        <span class="title">Historial de asistencias</span>
-                    </a>
-                </li>
-                <!-- END SINGLE LINK -->
+                @if(auth()->user()->role->rol == 'Administrador' || auth()->user()->role->rol == 'Nóminas' || auth()->user()->role->rol == 'Recepción')
+                    <!-- BEGIN SINGLE LINK -->
+                    <li class="{{$menu == 'Historial' ? 'active' : ''}}">
+                        <a href="{{url('historial')}}">
+                            <i class="fa fa-check-square-o" aria-hidden="true"></i>
+                            <span class="title">Historial de asistencias</span>
+                        </a>
+                    </li>
+                    <!-- END SINGLE LINK -->
+                @endif
 
                 <!-- BEGIN SINGLE LINK -->
                 <li class="loggingOut">
@@ -217,16 +235,6 @@
                     </a>
                 </li>
                 <!-- END SINGLE LINK -->
-
-                <!-- BEGIN SINGLE LINK -->
-                <li class="">
-                    <a href="#">
-                        <i class="" aria-hidden="true"></i>
-                        <span class="title"></span>
-                    </a>
-                </li>
-                <!-- END SINGLE LINK -->
-                <!-- END ONE LEVEL MENU -->
             </ul>
             <!-- END SIDEBAR MENU -->
         </div>
@@ -335,6 +343,12 @@
         <!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script> -->
         <script src="{{ asset('js/sweetalert.min.js') }}"></script>
         <script src="{{ asset('js/lightbox.js') }}"></script>
+
+        <!-- BEGIN CUSTOM CODE -->
+        <script src="{{ asset('js/generalAjax.js') }}"></script>
+        <script src="{{ asset('js/validFunctions.js') }}"></script>
+        <script src="{{ asset('js/globalFunctions.js') }}"></script>
+        <!-- END CUSTOM CODE -->
 
         <!-- BEGIN CORE JS FRAMEWORK-->
         <!--<script src="{{ asset('plugins/jquery-ui/jquery-ui-1.10.1.custom.min.js') }}" type="text/javascript"></script>-->

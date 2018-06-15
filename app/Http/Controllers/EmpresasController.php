@@ -9,6 +9,8 @@ use App\Http\Controllers\Controller;
 use App\Empresa;
 use App\EmpresaServicio;
 use Image;
+use Excel;
+use DB;
 
 class EmpresasController extends Controller
 {
@@ -31,13 +33,33 @@ class EmpresasController extends Controller
     public function index(Request $request)
     {
         if (auth()->check()) {
-            $title = "Clientes";
-            $menu = "Clientes";
-            $empresas = Empresa::where('status', 1)->get();
+            $title = $menu ="Clientes (Activos)";
+            $status = 1;
+            $empresas = Empresa::where('status', $status)->get();
             if ($request->ajax()) {
-                return view('empresas.tabla', ['empresas' => $empresas]);
+                return view('empresas.tabla', ['empresas' => $empresas, 'status' => $status]);
             }
-            return view('empresas.empresas', ['empresas' => $empresas, 'menu' => $menu, 'title' => $title]);
+            return view('empresas.empresas', ['empresas' => $empresas, 'status' => $status, 'menu' => $menu, 'title' => $title]);
+        } else {
+            return redirect()->to('/');
+        }
+    }
+
+    /**
+     * Carga la tabla de productos.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function inactivas(Request $request)
+    {
+        if (auth()->check()) {
+            $title = $menu ="Clientes (Inactivos)";
+            $status = 0;
+            $empresas = Empresa::where('status', $status)->get();
+            if ($request->ajax()) {
+                return view('empresas.tabla', ['empresas' => $empresas, 'status' => $status]);
+            }
+            return view('empresas.empresas', ['empresas' => $empresas, 'status' => $status, 'menu' => $menu, 'title' => $title]);
         } else {
             return redirect()->to('/');
         }
@@ -59,25 +81,19 @@ class EmpresasController extends Controller
         $empresa->contacto = $request->contacto;
         $empresa->telefono = $request->telefono;
         $empresa->marcacion_corta = $request->marcacion_corta;
+        $empresa->contrato = $request->contrato;
+        $empresa->numero_elementos = $request->numero_elementos;
+        $request->fecha_inicio ?  $empresa->fecha_inicio = $request->fecha_inicio : '';
+        $request->fecha_termino ?  $empresa->fecha_termino = $request->fecha_termino : '';
+        $empresa->observaciones = $request->observaciones;
+        $empresa->rfc = $request->rfc;
+        $empresa->tipo_pago = $request->tipo_pago;
         $empresa->status = 1;
         $empresa->created_at = $this->actual_datetime;
 
-        /*$logo = $request->file('logo');
-        if ($logo) {
-            $extensiones_permitidas = array("1"=>"jpeg", "2"=>"jpg", "3"=>"png", "4"=>"gif");
-            $extension_archivo = $logo->getClientOriginalExtension();
-            if (array_search($extension_archivo, $extensiones_permitidas)) {
-                $name = 'img/logo_empresa/'.time().'.'.$extension_archivo;
-                Image::make($logo)
-                //->resize(460, 460)
-                ->save($name);
-                $empresa->logo = $name;
-            }
-        }*/
-   
         $empresa->save();
 
-        return ['msg' => 'saved!'];
+        return response(['msg' => 'Cliente editado exitosamente', 'status' => 'success', 'url' => url('empresas')], 200);
     }
 
     /**
@@ -97,63 +113,81 @@ class EmpresasController extends Controller
             $empresa->contacto = $request->contacto;
             $empresa->telefono = $request->telefono;
             $empresa->marcacion_corta = $request->marcacion_corta;
-            //$empresa->status = 1;
-            $empresa->created_at = $this->actual_datetime;
+            $empresa->contrato = $request->contrato;
+            $empresa->numero_elementos = $request->numero_elementos;
+            $empresa->fecha_inicio = $request->fecha_inicio;
+            $empresa->fecha_termino = $request->fecha_termino;
+            $empresa->observaciones = $request->observaciones;
+            $empresa->rfc = $request->rfc;
+            $empresa->tipo_pago = $request->tipo_pago;
 
-            /*$logo = $request->file('logo');
-            if ($logo) {
-                $extensiones_permitidas = array("1"=>"jpeg", "2"=>"jpg", "3"=>"png", "4"=>"gif");
-                $extension_archivo = $logo->getClientOriginalExtension();
-                if (array_search($extension_archivo, $extensiones_permitidas)) {
-                    $name = 'img/logo_empresa/'.time().'.'.$extension_archivo;
-                    Image::make($logo)
-                    //->resize(460, 460)
-                    ->save($name);
-                    $empresa->logo = $name;
-                }
-            }*/
-       
             $empresa->save();
 
-            return ['msg' => 'saved!'];
+            $url = url($empresa->status == 1 ? 'empresas' : 'empresas/inactivas');
+
+            return response(['msg' => 'Cliente editado exitosamente', 'status' => 'success', 'url' => $url], 200);
         }
-        return ['msg' => 'The enterprise has an invalid ID'];
+        return response(['msg' => 'Error al editar el cliente, por favor, trate nuevamente', 'status' => 'success'], 404);
     }
 
     /**
-     * Elimina una empresa.
+     * Elimina una o más empresas.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @return ["success" => true]
      */
-    public function dar_baja(Request $request)
+    public function dar_baja(Request $req)
     {
-        $empresa = Empresa::find($request->id);
-        if ($empresa) {
-            $empresa->update(['status' => 0]);
-            //$empresa->delete();
-            return ["msg" => 'Deleted!'];
+        $rows = Empresa::whereIn('id', $req->ids)
+        ->update(['status' => $req->status]);
+
+        $url = url($req->status == 0 ? 'empresas' : 'empresas/inactivas');
+
+        if ($rows) {
+            return response(['url' => $url, 'status' => 'success', 'msg' => 'Éxito cambiando el status de las empresas seleccionadas'], 200);
         } else {
-            return ["msg" => 'Unable to delete this record!'];
+            return response(['msg' => 'Ha ocurrido un error, trate nuevamente', 'status' => 'error'], 404);
         }
     }
 
     /**
-     * Elimina múltiples empresas a la vez.
+     * Exporta todos los empleados a excel.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @return ["success" => true]
+     * @return response
      */
-    public function dar_baja_multiples_empresas(Request $request)
+    public function exportar_excel($status, $id = false)
     {
-        try {
-            Empresa::whereIn('id', $request->checking)
-            ->update(['status' => 0]);
-            //->delete();
-            return ["msg" => 'All rows selected were deleted!'];
-        } catch(\Illuminate\Database\QueryException $ex) {
-            return $ex->getMessage();
+        $nombre_excel = 'Empresa info';
+        $empresas = Empresa::select(DB::raw("empresas.id, empresas.nombre, empresas.oficina_cargo AS 'oficina a cargo',
+            empresas.direccion, empresas.contacto, empresas.telefono, empresas.marcacion_corta AS 'marcación corta',
+            empresas.contrato, empresas.numero_elementos AS 'número de elementos', empresas.fecha_inicio AS 'fecha de inicio',
+            empresas.fecha_termino AS 'fecha de término', empresas.rfc, empresas.tipo_pago AS 'Tipo de pago', empresas.observaciones, 
+            IF(empresas.status = 1, 'Activa', 'inactiva') as 'status'"));
+        
+
+        if ($id) {
+            $empresas = $empresas->where('empresas.id', $id)->get();
+            $nombre_excel = "Empresa (Cliente) ".$empresas[0]->nombre;
+
+        } else {
+            $empresas = $empresas->where('empresas.status', $status)->get();
+            $nombre_excel = "Empleados";
         }
+
+        Excel::create($nombre_excel, function($excel) use($empresas) {
+            $excel->sheet('Hoja 1', function($sheet) use($empresas) {
+                $sheet->cells('A:O', function($cells) {
+                    $cells->setAlignment('center');
+                    $cells->setValignment('center');
+                });
+                
+                $sheet->cells('A1:O1', function($cells) {
+                    $cells->setFontWeight('bold');
+                });
+
+                $sheet->fromArray($empresas);
+            });
+        })->export('xlsx');
+
+        return ['msg'=>'Excel creado'];
     }
 
     /**

@@ -16,8 +16,16 @@ class Empleado extends Model
      */
     protected $fillable = [
     	'nombre', 'apellido', 'num_empleado', 'num_cuenta', 'domicilio', 'ciudad',
-        'telefono', 'rfc', 'curp', 'nss', 'telefono_emergencia', 'status', 'created_at'
+        'telefono', 'rfc', 'curp', 'nss', 'telefono_emergencia', 'fecha_ingreso',
+        'escolaridad', 'infonavit', 'vacaciones', 'pensionado', 'perfil_laboral',
+        'fecha_baja', 'motivo_baja', 'fecha_finiquito', 'descripcion_finiquito',
+        'fecha_entrega_papeles', 'entrega_papeles', 'status', 'created_at'
     ];
+
+    /**
+     * Define los campos que se ocultarán en las llamadas.
+     */
+    protected $hidden = ['created_at', 'updated_at'];
 
     /**
      * Obtiene la documentación asociada con el empleado.
@@ -25,5 +33,21 @@ class Empleado extends Model
     public function documentacion()
     {
         return $this->hasOne('App\Documentacion', 'empleado_id');
+    }
+
+    /**
+     * Obtiene la información del uniforme asociado con el empleado.
+     */
+    public function uniforme()
+    {
+        return $this->hasOne('App\Uniforme', 'empleado_id');
+    }
+
+    /**
+     * Obtiene la información de los aditamentos asociados con el empleado.
+     */
+    public function aditamento()
+    {
+        return $this->hasOne('App\Aditamento', 'empleado_id');
     }
 }

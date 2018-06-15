@@ -16,12 +16,6 @@ btn_enviar.on('click', function() {
     msgError = '';
 
     validarInput($('input#nombre'), regExprTexto) ? '' : inputs.push('Nombre')
-    validarInput($('input#oficina_cargo'), regExprTexto) ? '' : inputs.push('Oficina a cargo')
-    validarInput($('textarea#direccion'), regExprTexto) ? '' : inputs.push('Dirección')
-    validarInput($('input#contacto'), regExprTexto) ? '' : inputs.push('Contacto')
-    validarInput($('input#telefono'), regExprTel) ? '' : inputs.push('Teléfono')
-    validarInput($('input#marcacion_corta'), regExprTel) ? '' : inputs.push('Marcación corta')
-
     if (inputs.length == 0) {
         $(this).children('i').show();
         $(this).attr('disabled', true);
@@ -34,21 +28,6 @@ btn_enviar.on('click', function() {
 
 $( "input#nombre" ).blur(function() {
     validarInput($(this), regExprTexto);
-});
-$( "input#oficina_cargo" ).blur(function() {
-    validarInput($(this), regExprTexto);
-});
-$( "textarea#direccion" ).blur(function() {
-    validarInput($(this), regExprTexto);
-});
-$( "input#contacto" ).blur(function() {
-    validarInput($(this), regExprTexto);
-});
-$( "input#telefono" ).blur(function() {
-    validarInput($(this), regExprTel);
-});
-$( "input#marcacion_corta" ).blur(function() {
-    validarInput($(this), regExprTel);
 });
 
 function validarInput (campo,regExpr) {
@@ -76,66 +55,4 @@ function validarSelect (select) {
     }
 }
 
-$('#form_empresa input#logo').bind('change', function() {
-    if ($(this).val() != '') {
-
-        kilobyte = (this.files[0].size / 1024);
-        mb = kilobyte / 1024;
-
-        archivo = $(this).val();
-        extension = archivo.split('.').pop().toLowerCase();
-
-        if ($.inArray(extension, fileExtension) == -1 || mb >= 5) {
-            swal({
-                title: "Archivo no válido",
-                text: "Debe seleccionar una imágen con formato jpg, jpeg o png, y debe pesar menos de 5MB",
-                type: "error",
-                closeOnConfirm: false
-            });
-        }
-    }
-});
-
-function validarArchivo(campo) {
-    archivo = $(campo).val();
-    extension = archivo.split('.').pop().toLowerCase();
-
-    if($('form#form_empresa input#id').val() != '' && ($(campo).val() == '' || $(campo).val() == null)) {
-        return true;
-    } else if ($.inArray(extension, fileExtension) == -1 || mb >= 5) {
-        $(campo).parent().addClass("has-error");
-        msgError = msgError + $(campo).parent().children('label').text() + '\n';
-        return false;
-    } else {
-        $(campo).parent().removeClass("has-error");
-        return true;
-    }
-}
-
 /*Fin de código para validar el formulario de datos del usuario*/
-
-/*Código para validar el archivo que importa datos desde excel*/
-var btn_enviar_excel = $("#enviar-excel");
-btn_enviar_excel.on('click', function() {
-    fileExtension = ['xls', 'xlsx'];
-    archivo = $("#archivo-excel").val();
-    extension = archivo.split('.').pop().toLowerCase();
-
-    if ($.inArray(extension, fileExtension) == -1) {
-        swal({
-            title: "Error",
-            text: "<span>Solo son admitidos archivos con extensión <strong>xls y xlsx</strong><br>Extensión de archivo seleccionado: <strong>"+ extension +" </strong></span>",
-            type: "error",
-            html: true,
-            confirmButtonColor: "#286090",
-            confirmButtonText: "Aceptar",
-            closeOnConfirm: false,
-        });
-        return false;
-    } else {
-        $(this).children('i').show();
-        $(this).attr('disabled', true);
-        cargarExcelPlatillos(btn_enviar_excel);
-    }
-});
-/*Fin del código para validar el archivo que importa datos desde excel*/

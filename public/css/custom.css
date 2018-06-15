@@ -55,3 +55,14 @@
 .page-sidebar .page-sidebar-wrapper > ul > li > ul.sub-menu > li.active a{
 	color: #FFFFFF!important;
 }
+/*Error list*/
+ul.error_list {
+	list-style-type: none;
+	padding: 0px;
+	color: firebrick;
+	font-weight: 600;
+}
+label.required:after{
+	content:"*";
+	color:red;
+}

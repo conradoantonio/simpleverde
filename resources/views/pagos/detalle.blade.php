@@ -1,8 +1,6 @@
 @extends('admin.main')
 
 @section('content')
-<link rel="stylesheet" href="{{ asset('plugins/bootstrap-select2/select2.css')}}"  type="text/css" media="screen"/>
-<link rel="stylesheet" href="{{ asset('plugins/jquery-datatable/css/jquery.dataTables.css')}}"  type="text/css" media="screen"/>
 <style>
 textarea {
     resize: none;
@@ -43,7 +41,8 @@ img#company-logo{
 }
 </style>
 <div class="text-center" style="margin: 20px;">
-     @if(session('msg'))
+	@include('pagos.modal_nuevo_empleado')
+    @if(session('msg'))
     <div class="alert {{session('class')}}">
         {{session('msg')}}
     </div>
@@ -55,9 +54,12 @@ img#company-logo{
 		        <button type="button" class="close" data-dismiss="alert" aria-label="Close"></button>
 		        <strong>Nomenclaturas: </strong><br>
 		        A = Día festivo (No se considera para ser pagado pero puede ser añadido el día en el excel master.) <br>
+		        C = Turno diurno (Se considera para ser pagado) <br>
 		        D = Día de descanso (Se considera para ser pagado) <br>
 		        F = Falta (No se considera para ser pagado) <br>
 		        I = Incapacidad (No se considera para ser pagado) <br>
+		        N = Turno nocturno (Se considera para ser pagado) <br>
+		        P = Pagado (No se considera para ser pagado) <br>
 		        V = Vacaciones (Se considera para ser pagado) <br>
 		        X = Asistencia (Se considera para ser pagado) <br>
 		        - = Sin valor (No se considera en cuenta para ser pagado) <br>
@@ -79,93 +81,33 @@ img#company-logo{
 									<li>Teléfono: {{$pago->empresa->telefono}}</li>
 									<li>Marcación corta: <strong>{{$pago->empresa->marcacion_corta}}</strong></li>
 									<li>Servicio: {{$pago->servicio->servicio}}</li>
+									<li>Número de empleados: {{$pago->num_empleados}}</li>
 									<li>Horario: {{$pago->servicio->horario}}</li>
 									<li>Sueldo: <strong>${{$pago->servicio->sueldo}}</strong></li>
 								</ul>
 							</div>
 							<div class="col-md-6 visible-lg visible-md hidden-sm hidden-xs text-right" style="float: right;">
-								<img src="{{asset('img/logo_topali.png')}}" class="" id="company-logo" alt="company-logo">
+								<img src="{{asset('img/logo_mini_simpleverde.png')}}" class="" id="company-logo" alt="company-logo">
 							</div>
 						</div>
 					</div>
                     <div class="grid-body">
-                        <div class="table-responsive" id="div_tabla_empresas">
-                            <table class="table table-bordered table-responsive" id="nomina">
-                            	<thead>
-                            		<th>ID</th>
-                            		<th>Nombre</th>
-                            		@foreach( $dias as $day )
-										@if( $day['dia'] == 0 )
-											<th class="{{$day['edit']?'edit':''}}">
-												<h6>D</h6>
-												<h6>{{$day['num']}}</h6>
-											</th>
-										@elseif( $day['dia'] == 1 )
-											<th class="{{$day['edit']?'edit':''}}">
-												<h6>L</h6>
-												<h6>{{$day['num']}}</h6>
-											</th>
-										@elseif( $day['dia'] == 2 )
-											<th class="{{$day['edit']?'edit':''}}">
-												<h6>M</h6>
-												<h6>{{$day['num']}}</h6>
-											</th>
-										@elseif( $day['dia'] == 3 )
-											<th class="{{$day['edit']?'edit':''}}">
-												<h6>M</h6>
-												<h6>{{$day['num']}}</h6>
-											</th>
-										@elseif( $day['dia'] == 4 )
-											<th class="{{$day['edit']?'edit':''}}">
-												<h6>J</h6>
-												<h6>{{$day['num']}}</h6>
-											</th>
-										@elseif( $day['dia'] == 5 )
-											<th class="{{$day['edit']?'edit':''}}">
-												<h6>V</h6>
-												<h6>{{$day['num']}}</h6>
-											</th>
-										@else
-											<th class="{{$day['edit']?'edit':''}}">
-												<h6>S</h6>
-												<h6>{{$day['num']}}</h6>
-											</th>
-										@endif
-                            		@endforeach
-                            		<th>Notas</th>
-                            	</thead>
-                            	<tbody>
-                            		@foreach( $pago->PagoUsuarios as $trabajador )
-                            			<tr>
-                            				<td>{{$trabajador->usuarios->id}}</td>
-                            				<td data-user={{$trabajador->usuarios->id}} data-realid={{$pago->id}} data-pago={{$trabajador->id}}>{{$trabajador->usuarios->nombre}}</td>
-                            				@if( count($asistencias) == 0 )
-	                            				@foreach( $dias as $day )
-													<td class="cell" data-dia="{{$day['num']}}"></td>
-												@endforeach
-                            				@else
-                            					@foreach( $asistencias as $asistencia )
-                            						@if( $asistencia->pago->trabajador_id == $trabajador->usuarios->id)
-														<td class="cell" data-dia="{{$asistencia->dia}}">{{$asistencia->status}}</td>
-                            						@endif
-                            					@endforeach
-                            				@endif
-                            				<td data-notes="1"><input type="text" name="notas" id="notas" value="{{$trabajador->notas?$trabajador->notas:''}}"></td>
-                            			</tr>
-                            		@endforeach
-                            	</tbody>
-                            </table>
+                        <div class="table-responsive" id="div_tabla_asistencias">
+                            @include('pagos.tabla_asistencias')
                         </div>
                     </div>
                 </div>
             </div>
-            <a href="{{$pago->status != 0 ? url('nominas') : url('historial')}}" class="btn btn-default">Regresar</a>
+            <a href="{{$pago->status != 0 ? url('nominas') : url('historial')}}" class="btn btn-default"><i class="fa fa-arrow-left" aria-hidden="true"></i> Regresar</a>
+            <button id="agregar_empleado" class="btn btn-success {{$pago->status == 0 ? 'hide' : ''}}"><i class="fa fa-plus" aria-hidden="true"></i> Agregar empleado</button>
             <button id="guardar" class="btn btn-primary {{$pago->status != 0 ? '' : 'hide'}}">
+            	<i class="fa fa-floppy-o" aria-hidden="true"></i>
                 <i class="fa fa-spinner fa-spin" style="display: none;"></i>
             	Guardar
             </button>
-			<a href="{{url('pagar-nomina/'.$pago->id)}}" class="btn btn-success {{$pago->status != 2 ? 'hide' : ''}}" id="btn-pagar">Pagar</a>
-			<a href="{{url('nominas/pdf/'.$pago->id)}}" target="_blank" class="btn btn-info" id="btn-pagar">Descargar PDF</a>
+            <button id="borrar_empleados" class="btn btn-danger {{$pago->status == 0 ? 'hide' : ''}}" disabled><i class="fa fa-trash" aria-hidden="true"></i> Eliminar empleados</button>
+			<a href="{{url('pagar-nomina/'.$pago->id)}}" class="btn btn-success {{$pago->status != 2 ? 'hide' : ''}}" id="btn-pagar"><i class="fa fa-money" aria-hidden="true"></i> Pagar</a>
+			<a href="{{url('nominas/pdf/'.$pago->id)}}" target="_blank" class="btn btn-info" id="btn-pagar"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> Descargar PDF</a>
         </div>
     </div>
 </div>
@@ -176,6 +118,8 @@ img#company-logo{
 <script src="{{ asset('plugins/datatables-responsive/js/lodash.min.js') }}" type="text/javascript"></script>
 <script src="{{ asset('js/tabs_accordian.js') }}"></script>
 <script src="{{ asset('js/datatables.js') }}"></script>
+<script src="{{ asset('js/pagosAjax.js') }}"></script>
+<script src="{{ asset('js/validacionesPagos.js') }}"></script>
 <script type="text/javascript">
 	/*$('table').each('td',function(){
 		console.log($(this))
@@ -185,18 +129,18 @@ img#company-logo{
 		}
 	})*/
 
+	/*Se agregan las clases necesarias para poder editar las celdas de la tabla y tomar asistencias*/
 	$(function(){
+		$(".select2").select2();
+
 		$('table#nomina tbody').find('td.cell').each (function() {
 			var col = $(this).prevAll().length;
 			if (  !$(this).parents('table').find('th').eq(col).hasClass('edit') ){
 				$(this).addClass('disabled')
-				/*if ( $.inArray($(this).text(), ['D', 'F', 'X', 'I', 'A', 'V', '-']) < 0 ){
-					$(this).text('F')
-				}*/
 			}
 		});
 
-		$('td').on('click',function(){
+		$('body').delegate('td','click', function() {
 			var col = $(this).prevAll().length;
 			if ( $(this).parents('table').find('th').eq(col).hasClass('edit') ){
 				if ( !$(this).hasClass('selected') ){
@@ -206,21 +150,90 @@ img#company-logo{
 				}
 			}
 		})
-
+		
+		/*Se valida que las teclas presionadas marquen una letra en las celdas seleccionadas*/
 		$(document).keypress(function(e){
-			if ( 
+			if (
 				e.which == 97 || e.which == 65 || /*A*/
+				e.which == 99 || e.which == 67 || /*C*/
 				e.which == 68 || e.which == 100 || /*D*/
 				e.which == 102 || e.which == 70 || /*F*/
 				e.which == 105 || e.which == 73 || /*I*/
+				e.which == 110 || e.which == 78 || /*N*/
+				e.which == 112 || e.which == 80 || /*P*/
 				e.which == 118 || e.which == 86 || /*V*/
 				e.which == 88 || e.which == 120 || /*X*/
 				e.which == 45 /*-*/) {
 					$(document).find('.selected').text(e.key.toUpperCase()).removeClass('edit, selected').addClass('done')
 			}
 		});
-	})
+	});
 
+	/*Elimina los empleados de la lista de asistencias*/
+	$('body').delegate('#borrar_empleados','click', function() {
+	    var checking = [];
+	    $("input.checkDelete").each(function() {
+	        if($(this).is(':checked')) {
+	            checking.push($(this).parent().parent().siblings("td:nth-child(4)").data('pago'));
+	        }
+	    });
+	    if (checking.length > 0) {
+	    	console.log(checking);
+	        swal({
+	            title: "¿Realmente desea eliminar <span style='color:#F8BB86'>" + checking.length + "</span> empleados de la lista de asistencia?",
+	            text: "¡Cuidado, ésta acción no podrá deshacerse y se perderán los registros de asistencia!",
+	            html: true,
+	            type: "warning",
+	            showCancelButton: true,
+	            cancelButtonText: "Cancelar",
+	            confirmButtonColor: "#DD6B55",
+	            confirmButtonText: "Si, continuar",
+	            showLoaderOnConfirm: true,
+	            allowEscapeKey: true,
+	            allowOutsideClick: true,
+	            closeOnConfirm: false
+	        },
+	        function() {
+	            eliminarEmpleadosLista(checking);
+	        });
+	    }
+	});
+
+	/*Se agrega un nuevo empleado a la lista de asistencias*/
+	$('#agregar-empleado-lista').on('click', function() {
+		button = $(this);
+    	workers = validarSelect($('select#trabajadores_id'));
+    	if (!workers) {
+			swal('Error', 'Porfavor, seleccione al menos un empleado para continuar', 'error')
+    	} else {
+    		button.children('i').show();
+            button.attr('disabled', true);
+    		agregarEmpleado(button);
+    	}
+	});
+
+	/*Abre el modal para elegir los empleados a agregar*/
+	$('#agregar_empleado').on('click', function() {
+        $('select#trabajadores_id').select2("val", "");
+		$('#modal-agregar-empleado').modal();
+	});
+
+	/*Habilita el botón para dar bajas múltiples*/
+	$('body').delegate('.checkDelete','click', function() {
+		var checking = [];
+	    $("input.checkDelete").each(function() {
+	        if($(this).is(':checked')) {
+	            checking.push($(this).parent().parent().parent().attr('id'));
+	        }
+	    });
+	    if (checking.length > 0) {
+	    	$('#borrar_empleados').attr('disabled', false);
+	    } else {
+	    	$('#borrar_empleados').attr('disabled', true);
+	    }
+	});
+
+	/*Arma el json con los datos de las asistencias de los empleados*/
 	$('#guardar').on('click', function(){
 		var button = $(this);
 		var empty = 0;
@@ -228,7 +241,7 @@ img#company-logo{
 		$('table#nomina tbody').find('td.cell').each (function() {
 			var col = $(this).prevAll().length;
 			if ( $(this).parents('table').find('th').eq(col).hasClass('edit') ){
-				if ( $.inArray($(this).text().trim(), ['D', 'F', 'X', 'I', 'A', 'V', '-']) < 0 ) {
+				if ( $.inArray($(this).text().trim(), ['A', 'C', 'D', 'F', 'I', 'N', 'P', 'V', 'X', '-']) < 0 ) {
 					empty++;
 				}
 			}
@@ -253,7 +266,7 @@ img#company-logo{
 				} else if( $(this).data('notes') ){
 					obj.notas = $(this).find('input').val()
 				}else if( $(this).hasClass('cell') ){
-					if ( $.inArray(ele.text(), ['D', 'F', 'X', 'I', 'A', 'V', '-']) >= 0 ){
+					if ( $.inArray(ele.text(), ['A', 'C', 'D', 'F', 'I', 'N', 'P', 'V', 'X', '-']) >= 0 ){
 						var txt = ele.text();
 					} else {
 						var txt = '';
@@ -272,44 +285,11 @@ img#company-logo{
 
 		var json = JSON.stringify(collection);
 
-		$.ajaxSetup({
-			headers: {
-				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-			}
-		});
-
-		button.children('i').show();
+		button.children('i.fa-spin').show();
+		button.children('i.fa-floppy-o').hide();
         button.attr('disabled', true);
 
-		$.ajax({
-			url:"{{url('guardarNominas')}}",
-			type:'POST',
-			data: {
-				'collection': json
-			},
-			success: function(response) {
-				button.children('i').hide();
-            	button.attr('disabled', false);
-				console.log(response);
-				if (response.status == 2) {
-					$('a#btn-pagar').removeClass('hide');
-				} /*else if (response.status != 0){
-					$('div.contenedor-detalles button#pagar').removeClass('hide');
-				}*/
-				if( response.save ){
-					swal('Éxito', 'Los cambios se han realizado correctamente', 'success')
-				}
-			},
-			error: function(xhr, status, error) {
-				button.children('i').hide();
-            	button.attr('disabled', false);
-	            swal({
-	                title: "<small>¡Error!</small>",
-	                text: "Se encontró un problema tratando de guardar las asistencias, por favor, trate nuevamente o recargue la página.<br><span style='color:#F8BB86'>\nError: " + xhr.status + " (" + error + ") "+"</span>",
-	                html: true
-	            });
-	        }
-		});
+		guardarAsistencias(json,button);
 	})
 </script>
 @endsection

@@ -17,7 +17,6 @@
 <body>
 	 <div class="row">
 		<div class="">
-
 			<h3><strong>{{$pago->empresa->nombre}}</strong></h3>
 			<h4><strong>{{$pago->empresa->oficina_cargo}}</strong></h4>
 			<h6>Dirección: {{$pago->empresa->direccion}}</h6>
@@ -25,11 +24,12 @@
 			<h6>Teléfono: {{$pago->empresa->telefono}}</h6>
 			<h6>Marcación corta: <strong>{{$pago->empresa->marcacion_corta}}</strong></h6>
 			<h6>Servicio: {{$pago->servicio->servicio}}</h6>
+			<h6>Número de empleados: {{$pago->num_empleados}}</h6>
 			<h6>Horario: {{$pago->servicio->horario}}</h6>
 			<h6>Sueldo: <strong>${{$pago->servicio->sueldo}}</strong></h6>
 		</div>
 		<div class="" style="float: right;">
-			<img src="{{asset('img/logo_topali.png')}}" alt="company-logo">
+			<img src="{{asset('img/logo_mini_simpleverde.png')}}" alt="company-logo">
 		</div>
 	</div>
 	<br>
@@ -37,6 +37,7 @@
 		<thead class="thead-light">
 			<tr>
 				<th style="width: 10px;">ID</th>
+				<th style="width: 10px;">No. Empleado</th>
 				<th style="width: 10px;">Nombre</th>
 				@foreach( $dias as $day )
 					@if( $day['dia'] == 0 )
@@ -82,14 +83,15 @@
 			@foreach( $pago->PagoUsuarios as $trabajador )
 				<tr>
 					<td>{{$trabajador->usuarios->id}}</td>
-					<td data-user={{$trabajador->usuarios->id}} data-realid={{$pago->id}} data-pago={{$trabajador->id}}>{{$trabajador->usuarios->nombre}}</td>
+					<td>{{$trabajador->usuarios->num_empleado}}</td>
+					<td data-user={{$trabajador->usuarios->id}} data-realid={{$pago->id}} data-pago={{$trabajador->id}}>{{$trabajador->usuarios->nombre}} {{$trabajador->usuarios->apellido_paterno}} {{$trabajador->usuarios->apellido_materno}}</td>
 					@if( count($asistencias) == 0 )
 	    				@foreach( $dias as $day )
 							<td class="cell" data-dia="{{$day['num']}}"></td>
 						@endforeach
 					@else
 						@foreach( $asistencias as $asistencia )
-							@if( $asistencia->pago->trabajador_id == $trabajador->usuarios->id)
+                            @if( $asistencia->pago->id == $trabajador->id)
 								<td class="cell" data-dia="{{$asistencia->dia}}">{{$asistencia->status}}</td>
 							@endif
 						@endforeach
@@ -119,4 +121,3 @@
 </body>
 </html>
 
-	

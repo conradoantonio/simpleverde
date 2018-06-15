@@ -18,9 +18,8 @@
                 <div class="grid-title">
                     <div class="grid-body">
                         <h3>Datos generales</h3>
-                    	<div class="container-fluid content-body">
-                            <form id="form_empleado" action="{{url('empleados')}}/{{ $empleado ? 'actualizar' : 'guardar' }}" enctype="multipart/form-data" method="POST" autocomplete="off">
-                                <input type="hidden" name="_token" id="token" value="{!! csrf_token() !!}">
+                        <div class="container-fluid content-body">
+                            <form id="form-data" action="{{url('empleados')}}/{{ $empleado ? 'actualizar' : 'guardar' }}" onsubmit="return false;" enctype="multipart/form-data" method="POST" autocomplete="off" data-ajax-type="ajax-form" data-column="0" data-refresh="0" data-redirect="1" data-table_id="example3" data-container_id="table_container">
                                 <div class="row">
                                     <div class="col-sm-6 col-xs-12 hidden">
                                         <div class="form-group">
@@ -28,28 +27,34 @@
                                             <input type="text" class="form-control" value="{{$empleado ? $empleado->id : ''}}" id="id" name="id">
                                         </div>
                                     </div>
-                                    <div class="col-sm-4 col-xs-12">
+                                    <div class="col-sm-6 col-xs-12">
                                         <div class="form-group">
-                                            <label for="nombre">Nombre</label>
-                                            <input type="text" class="form-control" value="{{$empleado ? $empleado->nombre : ''}}" id="nombre" name="nombre" placeholder="Nombre">
+                                            <label for="num_empleado" class="required">No. de empleado</label>
+                                            <input type="text" class="form-control not-empty" value="{{$empleado ? $empleado->num_empleado : ''}}" id="num_empleado" name="num_empleado" placeholder="No. de empleado" data-msg="No. de empleado">
                                         </div>
                                     </div>
-                                    <div class="col-sm-4 col-xs-12">
+                                    <div class="col-sm-6 col-xs-12">
                                         <div class="form-group">
-                                            <label for="apellido">Apellido</label>
-                                            <input type="text" class="form-control" value="{{$empleado ? $empleado->apellido : ''}}" id="apellido" name="apellido" placeholder="Apellido">
+                                            <label for="nombre" class="required">Nombre</label>
+                                            <input type="text" class="form-control not-empty" value="{{$empleado ? $empleado->nombre : ''}}" id="nombre" name="nombre" placeholder="Nombre" data-msg="Nombre">
                                         </div>
                                     </div>
-                                    <div class="col-sm-4 col-xs-12">
+                                    <div class="col-sm-6 col-xs-12">
                                         <div class="form-group">
-                                            <label for="num_empleado">No. de empleado</label>
-                                            <input type="text" class="form-control" value="{{$empleado ? $empleado->num_empleado : ''}}" id="num_empleado" name="num_empleado" placeholder="No. de empleado">
+                                            <label for="apellido_paterno" class="required">Apellido paterno</label>
+                                            <input type="text" class="form-control not-empty" value="{{$empleado ? $empleado->apellido_paterno : ''}}" id="apellido_paterno" name="apellido_paterno" placeholder="Apellido paterno" data-msg="Apellido paterno">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label for="apellido_materno" class="required">Apellido materno</label>
+                                            <input type="text" class="form-control not-empty" value="{{$empleado ? $empleado->apellido_materno : ''}}" id="apellido_materno" name="apellido_materno" placeholder="Apellido materno" data-msg="Apellido materno">
                                         </div>
                                     </div>
                                     <div class="col-sm-12 col-xs-12">
                                         <div class="form-group">
-                                            <label for="num_cuenta">No. de cuenta</label>
-                                            <input type="text" class="form-control" value="{{$empleado ? $empleado->num_cuenta : ''}}" id="num_cuenta" name="num_cuenta" maxlength="10" placeholder="No. de cuenta">
+                                            <label for="num_cuenta" class="required">No. de cuenta</label>
+                                            <input type="text" class="form-control not-empty" value="{{$empleado ? $empleado->num_cuenta : ''}}" id="num_cuenta" name="num_cuenta" maxlength="10" placeholder="No. de cuenta" data-msg="No. de cuenta">
                                         </div>
                                     </div>
                                     <div class="col-sm-12 col-xs-12">
@@ -66,36 +71,107 @@
                                     </div>
                                     <div class="col-sm-6 col-xs-12">
                                         <div class="form-group">
-                                            <label for="telefono">Teléfono</label>
-                                            <input type="text" class="form-control" value="{{$empleado ? $empleado->telefono : ''}}" id="telefono" name="telefono" placeholder="Teléfono">
+                                            <label for="telefono" class="required">Teléfono</label>
+                                            <input type="text" class="form-control not-empty" value="{{$empleado ? $empleado->telefono : ''}}" id="telefono" name="telefono" placeholder="Teléfono" data-msg="Teléfono">
                                         </div>
                                     </div>
                                     <div class="col-sm-6 col-xs-12">
                                         <div class="form-group">
                                             <label for="rfc">RFC</label>
-                                            <input type="text" class="form-control" value="{{$empleado ? $empleado->rfc : ''}}" id="rfc" name="rfc" placeholder="RFC">
+                                            <input type="text" class="form-control" value="{{$empleado ? $empleado->rfc : ''}}" id="rfc" name="rfc" placeholder="RFC" data-msg="RFC">
                                         </div>
                                     </div>
                                     <div class="col-sm-6 col-xs-12">
                                         <div class="form-group">
                                             <label for="curp">CURP</label>
-                                            <input type="text" class="form-control" value="{{$empleado ? $empleado->curp : ''}}" id="curp" name="curp" placeholder="CURP">
+                                            <input type="text" class="form-control" value="{{$empleado ? $empleado->curp : ''}}" id="curp" name="curp" placeholder="CURP" data-msg="CURP">
                                         </div>
                                     </div>
                                     <div class="col-sm-6 col-xs-12">
                                         <div class="form-group">
-                                            <label for="nss">NSS</label>
-                                            <input type="text" class="form-control" value="{{$empleado ? $empleado->nss : ''}}" id="nss" name="nss" placeholder="NSS">
+                                            <label for="nss" class="required">NSS</label>
+                                            <input type="text" class="form-control not-empty" value="{{$empleado ? $empleado->nss : ''}}" id="nss" name="nss" placeholder="NSS" data-msg="NSS">
                                         </div>
                                     </div>
                                     <div class="col-sm-6 col-xs-12">
                                         <div class="form-group">
-                                            <label for="telefono_emergencia">Télefono de emergencia</label>
-                                            <input type="text" class="form-control" value="{{$empleado ? $empleado->telefono_emergencia : ''}}" id="telefono_emergencia" name="telefono_emergencia" placeholder="Télefono de emergencia">
+                                            <label for="telefono_emergencia" class="required">Télefono de emergencia</label>
+                                            <input type="text" class="form-control not-empty" value="{{$empleado ? $empleado->telefono_emergencia : ''}}" id="telefono_emergencia" name="telefono_emergencia" placeholder="Télefono de emergencia" data-msg="Télefono de emergencia">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label for="fecha_ingreso">Fecha de ingreso</label>
+                                            <input type="text" class="form-control" value="{{$empleado ? $empleado->fecha_ingreso : ''}}" id="fecha_ingreso" name="fecha_ingreso" placeholder="Fecha de ingreso">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label for="escolaridad">Escolaridad</label>
+                                            <input type="text" class="form-control" value="{{$empleado ? $empleado->escolaridad : ''}}" id="escolaridad" name="escolaridad" placeholder="Escolaridad">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label for="infonavit">Infonavit</label>
+                                            <input type="text" class="form-control" value="{{$empleado ? $empleado->infonavit : ''}}" id="infonavit" name="infonavit" placeholder="Infonavit">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label for="vacaciones">Vacaciones</label>
+                                            <input type="text" class="form-control" value="{{$empleado ? $empleado->vacaciones : ''}}" id="vacaciones" name="vacaciones" placeholder="Vacaciones">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label for="pensionado">Pensionado</label>
+                                            <input type="text" class="form-control" value="{{$empleado ? $empleado->pensionado : ''}}" id="pensionado" name="pensionado" placeholder="Pensionado">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label for="perfil_laboral">Perfil de comportamiento laboral</label>
+                                            <input type="text" class="form-control" value="{{$empleado ? $empleado->perfil_laboral : ''}}" id="perfil_laboral" name="perfil_laboral" placeholder="Perfil de comportamiento laboral">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label for="fecha_baja">Fecha de baja</label>
+                                            <input type="text" class="form-control" value="{{$empleado ? $empleado->fecha_baja : ''}}" id="fecha_baja" name="fecha_baja" placeholder="Fecha de baja">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label for="motivo_baja">Motivo de baja</label>
+                                            <input type="text" class="form-control" value="{{$empleado ? $empleado->motivo_baja : ''}}" id="motivo_baja" name="motivo_baja" placeholder="Motivo de baja">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label for="fecha_finiquito">Fecha de finiquito</label>
+                                            <input type="text" class="form-control" value="{{$empleado ? $empleado->fecha_finiquito : ''}}" id="fecha_finiquito" name="fecha_finiquito" placeholder="Fecha de finiquito">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label for="descripcion_finiquito">Descripción de finiquito</label>
+                                            <input type="text" class="form-control" value="{{$empleado ? $empleado->descripcion_finiquito : ''}}" id="descripcion_finiquito" name="descripcion_finiquito" placeholder="Descripción de finiquito">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label for="fecha_entrega_papeles">Fecha de entrega de papeles</label>
+                                            <input type="text" class="form-control" value="{{$empleado ? $empleado->fecha_entrega_papeles : ''}}" id="fecha_entrega_papeles" name="fecha_entrega_papeles" placeholder="Fecha de entrega de papeles">
+                                        </div>
+                                    </div>
+                                     <div class="col-sm-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label for="entrega_papeles">Descripción de entrega de papeles</label>
+                                            <input type="text" class="form-control" value="{{$empleado ? $empleado->entrega_papeles : ''}}" id="entrega_papeles" name="entrega_papeles" placeholder="Descripción de entrega de papeles">
                                         </div>
                                     </div>
                                 </div>
-
                                 <hr>
                                 <div class="row">
                                     <h3>Documentación</h3>
@@ -189,6 +265,12 @@
                                             <label for="examen_toxicologico" style="padding-left:0px;"></label>
                                         </div>
                                     </div>
+                                    <div class="col-sm-4 col-xs-12">
+                                        <div class="form-group">
+                                            <label for="licencia_conduccion">Licencia de conducir</label>
+                                            <input type="text" class="form-control" value="{{$empleado && $empleado->documentacion ? $empleado->documentacion->licencia_conduccion : ''}}" id="licencia_conduccion" name="licencia_conduccion">
+                                        </div>
+                                    </div>
                                 </div>
                                 
                                 <hr>
@@ -265,28 +347,192 @@
                                         </div>
                                     </div>
                                 </div>
-                                @if ($editable)
-                                    <button type="submit" class="btn btn-primary" id="guardar_empleado">
+
+                                <hr>
+                                <div class="row">
+                                    <h3>Uniforme de empleado</h3>
+                                    <div class="col-sm-6 col-xs-12 hide">
+                                        <div class="form-group">
+                                            <label for="uniforme_id">Uniforme ID</label>
+                                            <input type="text" class="form-control" value="{{$empleado && $empleado->uniforme ? $empleado->uniforme->id : ''}}" id="uniforme_id" name="uniforme_id">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4 col-xs-12" style="padding-bottom: 20px;">
+                                        <label for="playera_polo">Playera polo</label>
+                                        <div class="checkbox check-primary">
+                                            <input id="playera_polo" name="playera_polo" type="checkbox" {{($empleado && $empleado->uniforme ? ($empleado->uniforme->playera_polo ? 'checked' : '') : '')}}>
+                                            <label for="playera_polo" style="padding-left:0px;"></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4 col-xs-12" style="padding-bottom: 20px;">
+                                        <label for="camisa">Camisa</label>
+                                        <div class="checkbox check-primary">
+                                            <input id="camisa" name="camisa" type="checkbox" {{($empleado && $empleado->uniforme ? ($empleado->uniforme->camisa ? 'checked' : '') : '')}}>
+                                            <label for="camisa" style="padding-left:0px;"></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4 col-xs-12" style="padding-bottom: 20px;">
+                                        <label for="pantalones">Pantalones</label>
+                                        <div class="checkbox check-primary">
+                                            <input id="pantalones" name="pantalones" type="checkbox" {{($empleado && $empleado->uniforme ? ($empleado->uniforme->pantalones ? 'checked' : '') : '')}}>
+                                            <label for="pantalones" style="padding-left:0px;"></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4 col-xs-12" style="padding-bottom: 20px;">
+                                        <label for="chaleco">Chaleco</label>
+                                        <div class="checkbox check-primary">
+                                            <input id="chaleco" name="chaleco" type="checkbox" {{($empleado && $empleado->uniforme ? ($empleado->uniforme->chaleco ? 'checked' : '') : '')}}>
+                                            <label for="chaleco" style="padding-left:0px;"></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4 col-xs-12" style="padding-bottom: 20px;">
+                                        <label for="sueter">Sueter</label>
+                                        <div class="checkbox check-primary">
+                                            <input id="sueter" name="sueter" type="checkbox" {{($empleado && $empleado->uniforme ? ($empleado->uniforme->sueter ? 'checked' : '') : '')}}>
+                                            <label for="sueter" style="padding-left:0px;"></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4 col-xs-12" style="padding-bottom: 20px;">
+                                        <label for="chamarra">Chamarra</label>
+                                        <div class="checkbox check-primary">
+                                            <input id="chamarra" name="chamarra" type="checkbox" {{($empleado && $empleado->uniforme ? ($empleado->uniforme->chamarra ? 'checked' : '') : '')}}>
+                                            <label for="chamarra" style="padding-left:0px;"></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4 col-xs-12" style="padding-bottom: 20px;">
+                                        <label for="gorra">Gorra</label>
+                                        <div class="checkbox check-primary">
+                                            <input id="gorra" name="gorra" type="checkbox" {{($empleado && $empleado->uniforme ? ($empleado->uniforme->gorra ? 'checked' : '') : '')}}>
+                                            <label for="gorra" style="padding-left:0px;"></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4 col-xs-12" style="padding-bottom: 20px;">
+                                        <label for="botas">Botas</label>
+                                        <div class="checkbox check-primary">
+                                            <input id="botas" name="botas" type="checkbox" {{($empleado && $empleado->uniforme ? ($empleado->uniforme->botas ? 'checked' : '') : '')}}>
+                                            <label for="botas" style="padding-left:0px;"></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4 col-xs-12" style="padding-bottom: 20px;">
+                                        <label for="traje">Traje</label>
+                                        <div class="checkbox check-primary">
+                                            <input id="traje" name="traje" type="checkbox" {{($empleado && $empleado->uniforme ? ($empleado->uniforme->traje ? 'checked' : '') : '')}}>
+                                            <label for="traje" style="padding-left:0px;"></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4 col-xs-12" style="padding-bottom: 20px;">
+                                        <label for="corbata">Corbata</label>
+                                        <div class="checkbox check-primary">
+                                            <input id="corbata" name="corbata" type="checkbox" {{($empleado && $empleado->uniforme ? ($empleado->uniforme->corbata ? 'checked' : '') : '')}}>
+                                            <label for="corbata" style="padding-left:0px;"></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4 col-xs-12">
+                                        <div class="form-group">
+                                            <label for="otros_uniformes">Otros</label>
+                                            <input type="text" class="form-control" value="{{($empleado && $empleado->uniforme ? $empleado->uniforme->otros : '')}}" id="otros_uniformes" name="otros_uniformes" placeholder="Otros uniformes">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <hr>
+                                <div class="row">
+                                    <h3>Aditamento de empleado</h3>
+                                    <div class="col-sm-6 col-xs-12 hide">
+                                        <div class="form-group">
+                                            <label for="aditamento_id">Aditamento ID</label>
+                                            <input type="text" class="form-control" value="{{$empleado && $empleado->aditamento ? $empleado->aditamento->id : ''}}" id="aditamento_id" name="aditamento_id">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4 col-xs-12" style="padding-bottom: 20px;">
+                                        <label for="fornitura">Fornitura</label>
+                                        <div class="checkbox check-primary">
+                                            <input id="fornitura" name="fornitura" type="checkbox" {{($empleado && $empleado->aditamento ? ($empleado->aditamento->fornitura ? 'checked' : '') : '')}}>
+                                            <label for="fornitura" style="padding-left:0px;"></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4 col-xs-12" style="padding-bottom: 20px;">
+                                        <label for="tolete">Tolete</label>
+                                        <div class="checkbox check-primary">
+                                            <input id="tolete" name="tolete" type="checkbox" {{($empleado && $empleado->aditamento ? ($empleado->aditamento->tolete ? 'checked' : '') : '')}}>
+                                            <label for="tolete" style="padding-left:0px;"></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4 col-xs-12" style="padding-bottom: 20px;">
+                                        <label for="gas">Gas</label>
+                                        <div class="checkbox check-primary">
+                                            <input id="gas" name="gas" type="checkbox" {{($empleado && $empleado->aditamento ? ($empleado->aditamento->gas ? 'checked' : '') : '')}}>
+                                            <label for="gas" style="padding-left:0px;"></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4 col-xs-12" style="padding-bottom: 20px;">
+                                        <label for="aros_aprehensores">Aros aprehensores</label>
+                                        <div class="checkbox check-primary">
+                                            <input id="aros_aprehensores" name="aros_aprehensores" type="checkbox" {{($empleado && $empleado->aditamento ? ($empleado->aditamento->aros_aprehensores ? 'checked' : '') : '')}}>
+                                            <label for="aros_aprehensores" style="padding-left:0px;"></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4 col-xs-12" style="padding-bottom: 20px;">
+                                        <label for="radio">Radio</label>
+                                        <div class="checkbox check-primary">
+                                            <input id="radio" name="radio" type="checkbox" {{($empleado && $empleado->aditamento ? ($empleado->aditamento->radio ? 'checked' : '') : '')}}>
+                                            <label for="radio" style="padding-left:0px;"></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4 col-xs-12" style="padding-bottom: 20px;">
+                                        <label for="celular">Celular</label>
+                                        <div class="checkbox check-primary">
+                                            <input id="celular" name="celular" type="checkbox" {{($empleado && $empleado->aditamento ? ($empleado->aditamento->celular ? 'checked' : '') : '')}}>
+                                            <label for="celular" style="padding-left:0px;"></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4 col-xs-12" style="padding-bottom: 20px;">
+                                        <label for="lampara">Lámpara</label>
+                                        <div class="checkbox check-primary">
+                                            <input id="lampara" name="lampara" type="checkbox" {{($empleado && $empleado->aditamento ? ($empleado->aditamento->lampara ? 'checked' : '') : '')}}>
+                                            <label for="lampara" style="padding-left:0px;"></label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-sm-4 col-xs-12">
+                                        <div class="form-group">
+                                            <label for="otros_aditamentos">Otros</label>
+                                            <input type="text" class="form-control" value="{{($empleado && $empleado->aditamento ? $empleado->aditamento->otros : '')}}" id="otros_aditamentos" name="otros_aditamentos" placeholder="Otros aditamentos">
+                                        </div>
+                                    </div>
+                                </div>
+                                <a href="{{url('empleados')}}{{($empleado ? ($empleado->status == 0 ? '/inactivos' : '') : '')}}"><button type="button" class="btn btn-default" data-dismiss="modal">Regresar</button></a>
+                                @if($editable)
+                                    <button type="submit" class="btn btn-primary save">
                                         <i class="fa fa-spinner fa-spin" style="display: none;"></i>
                                         Guardar
                                     </button>
                                 @endif
-                                <a href="{{url('empleados')}}"><button type="button" class="btn btn-default" data-dismiss="modal">Regresar</button></a>
+                                @if($empleado)
+                                    <a href="{{url("empleados/exportar/individual/1/$empleado->id")}}"><button type="button" class="btn btn-info" data-dismiss="modal">Exportar</button></a>
+                                @endif
                             </form>
-                    	</div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-{{-- <script src="{{ asset('js/empleadosAjax.js') }}"></script> --}}
-<script src="{{ asset('js/validacionesEmpleados.js') }}"></script>
+{{-- <script src="{{ asset('js/validacionesEmpleados.js') }}"></script> --}}
 <script type="text/javascript">
+    $(function(){
+        $( "#fecha_ingreso, #fecha_baja, #fecha_finiquito, #fecha_entrega_papeles" ).datepicker({
+            autoclose: true,
+            todayHighlight: true,
+            format: "yyyy-mm-dd",
+        });
+    })
+
     setTimeout(function() {
         var editable = <?php echo $editable;?>;
         if (editable == 0) {
-            $('form#form_empleado input, form#form_empleado textarea').attr('disabled', true);
+            $('form#form-data input, form#form-data textarea').attr('disabled', true);
         }
         //var empleado = '{{$empleado}}';
         console.log(editable);

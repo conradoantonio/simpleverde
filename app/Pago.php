@@ -9,7 +9,7 @@ class Pago extends Model
 	public $timestamps = false;
 
 	protected $fillable = [
-		"empresa_id", "servicio_id", "fecha_inicio", "fecha_fin"
+		"empresa_id", "servicio_id", "fecha_inicio", "fecha_fin", "num_empleados", "status"
 	];
 
 	public function PagoUsuarios(){

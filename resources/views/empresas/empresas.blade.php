@@ -29,7 +29,7 @@ input:-webkit-autofill {
 
     @include('empresas.form_empresa')
 
-    <h2>Lista de empresas</h2>
+    <h2>Lista de clientes (empresas)</h2>
 
     <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="titulo_tipo_servicio" id="servicio_dialogo">
         <div class="modal-dialog modal-lg" role="document">
@@ -115,17 +115,19 @@ input:-webkit-autofill {
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
 
-    <div class="row-fluid">
+    <div class="row-fluid" style="display: none">
         <div class="span12">
             <div class="grid simple ">
                 <div class="grid-title">
                     <h4>Opciones <span class="semi-bold">adicionales</span></h4>
-                    <div>
-                        {{-- <button type="button" class="btn btn-info {{count($empresas) ? '' : 'hide'}}" id="exportar_empresas_excel"><i class="fa fa-download" aria-hidden="true"></i> Exportar empresas</button> --}}
-                        <button type="button" class="btn btn-danger {{count($empresas) ? '' : 'hide'}}" id="eliminar_multiples_empresas"><i class="fa fa-trash" aria-hidden="true"></i> Eliminar empresas</button>
-                        
-                        {{-- <button type="button" class="btn btn-success" data-toggle="modal" data-target="#importar-excel"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Importar empresas</button> --}}
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#formulario_empresa" id="nuevo_empresa"><i class="fa fa-plus" aria-hidden="true"></i> Nueva empresa</button>
+                    <div class="general-info" data-url="{{url('empresas')}}" data-refresh="table" data-status="{{$status}}">
+                        <a href="{{url("empresas/exportar/general/{$status}")}}">
+                            <button type="button" class="btn btn-info {{count($empresas) ? '' : 'hide'}}" id="exportar_empresas_excel"><i class="fa fa-download" aria-hidden="true"></i> Exportar clientes</button>
+                        </a>
+                        <button type="button" class="btn btn-danger disable-rows enable-rows {{count($empresas) ? '' : 'hide'}}"><i class="fa {{$status == 1 ? 'fa-trash' : 'fa-undo'}}" aria-hidden="true"></i> {{$status == 1 ? 'Dar de baja' : 'Reactivar empresas'}}</button>
+                        @if($status == 1)
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#formulario_empresa" id="nuevo_empresa"><i class="fa fa-plus" aria-hidden="true"></i> Nueva empresa</button>
+                        @endif
                     </div>
                     <div class="grid-body">
                         <div class="table-responsive" id="div_tabla_empresas">
@@ -155,21 +157,13 @@ input:-webkit-autofill {
  *==================================================================================================================================================================================
  */
 
-$('#formulario_empresa').on('hidden.bs.modal', function (e) {
-    $('#formulario_empresa div.form-group').removeClass('has-error');
-    $('input.form-control, textarea.form-control').val('');
-    $("#formulario_empresa input#oferta").prop('checked', false);
-});
-
-$('body').delegate('button#nuevo_empresa','click', function() {
-    $('select.form-control').val(0);
-    $('input.form-control').val('');
+$('body').delegate('button#nueva_empresa','click', function() {
     $('div#logo_empresa').hide();
     $("h4#titulo_form_empresa").text('Nueva empresa');
     $("form#form_empresa").get(0).setAttribute('action', '{{url('empresas/guardar')}}');
 });
 
-$('body').delegate('.editar_empresa','click', function() {
+$('body').delegate('.editar_empresa, .detalle_empresa','click', function() {
     $('input.form-control').val('');
     id = $(this).parent().siblings("td:nth-child(2)").text(),
     nombre = $(this).parent().siblings("td:nth-child(3)").text(),
@@ -178,9 +172,14 @@ $('body').delegate('.editar_empresa','click', function() {
     contacto = $(this).parent().siblings("td:nth-child(6)").text(),
     telefono = $(this).parent().siblings("td:nth-child(7)").text(),
     marcacion_corta = $(this).parent().siblings("td:nth-child(8)").text(),
-    token = $('#token').val();
+    contrato = $(this).parent().siblings("td:nth-child(9)").text(),
+    numero_elementos = $(this).parent().siblings("td:nth-child(10)").text(),
+    fecha_inicio = $(this).parent().siblings("td:nth-child(11)").text(),
+    fecha_termino = $(this).parent().siblings("td:nth-child(12)").text(),
+    observaciones = $(this).parent().siblings("td:nth-child(13)").text(),
+    rfc = $(this).parent().siblings("td:nth-child(14)").text(),
+    tipo_pago = $(this).parent().siblings("td:nth-child(15)").text(),
 
-    $("h4#titulo_form_empresa").text('Editar empresa');
     $("form#form_empresa").get(0).setAttribute('action', '{{url('empresas/editar')}}');
     $("#formulario_empresa input#id").val(id);
     $("#formulario_empresa input#nombre").val(nombre);
@@ -189,61 +188,29 @@ $('body').delegate('.editar_empresa','click', function() {
     $("#formulario_empresa input#contacto").val(contacto);
     $("#formulario_empresa input#telefono").val(telefono);
     $("#formulario_empresa input#marcacion_corta").val(marcacion_corta);
+    $("#formulario_empresa input#contrato").val(contrato);
+    $("#formulario_empresa input#numero_elementos").val(numero_elementos);
+    $("#formulario_empresa input#fecha_inicio").val(fecha_inicio);
+    $("#formulario_empresa input#fecha_termino").val(fecha_termino);
+    $("#formulario_empresa textarea#observaciones").val(observaciones);
+    $("#formulario_empresa input#rfc").val(rfc);
+    $("#formulario_empresa input#tipo_pago").val(tipo_pago);
+
+    $("input#fecha_inicio").datepicker("update", fecha_inicio);
+    $("input#fecha_termino").datepicker("update", fecha_termino);
+
+            
+    $('form#form_empresa input, form#form_empresa textarea').attr('disabled', $(this).hasClass('detalle_empresa') ? true : false);
+
+    if ($(this).hasClass('detalle_empresa')) {
+        $("h4#titulo_form_empresa").text('Detalle de empresa');
+        $('form#form_empresa button.save').addClass('hide');
+    } else {
+        $("h4#titulo_form_empresa").text('Editar empresa');
+        $('form#form_empresa button.save').removeClass('hide');
+    }
 
     $('#formulario_empresa').modal();
-});
-
-$('body').delegate('#eliminar_multiples_empresas','click', function() {
-    var checking = [];
-    $("input.checkDelete").each(function() {
-        if($(this).is(':checked')) {
-            checking.push($(this).parent().parent().parent().attr('id'));
-        }
-    });
-    if (checking.length > 0) {
-        swal({
-            title: "¿Realmente desea eliminar las <span style='color:#F8BB86'>" + checking.length + "</span> empresas seleccionadas?",
-            text: "¡Esta acción no podrá deshacerse!",
-            html: true,
-            type: "warning",
-            showCancelButton: true,
-            cancelButtonText: "Cancelar",
-            confirmButtonColor: "#DD6B55",
-            confirmButtonText: "Si, continuar",
-            showLoaderOnConfirm: true,
-            allowEscapeKey: true,
-            allowOutsideClick: true,
-            closeOnConfirm: false
-        },
-        function() {
-            var token = $("#token").val();
-            eliminarMultiplesEmpresas(checking, token);
-        });
-    }
-});
-
-$('body').delegate('.eliminar_empresa','click', function() {
-    var nombre = $(this).parent().siblings("td:nth-child(3)").text();
-    var token = $("#token").val();
-    var id = $(this).parent().parent().attr('id');
-
-    swal({
-        title: "¿Realmente desea eliminar la empresa <span style='color:#F8BB86'>" + nombre + "</span>?",
-        text: "¡Cuidado!",
-        html: true,
-        type: "warning",
-        showCancelButton: true,
-        cancelButtonText: "Cancelar",
-        confirmButtonColor: "#DD6B55",
-        confirmButtonText: "Si, continuar",
-        showLoaderOnConfirm: true,
-        allowEscapeKey: true,
-        allowOutsideClick: true,
-        closeOnConfirm: false
-    },
-    function() {
-        eliminarEmpresa(id,token);
-    });
 });
 
 /**

@@ -36,4 +36,27 @@ class User extends Model implements AuthenticatableContract,
      * @var array
      */
     protected $hidden = ['password', 'remember_token'];
+
+    /**
+     * Check the rol of the current user.
+     *
+     */
+    public function role() 
+    {
+        return $this->hasOne('App\Role', 'id', 'role_id');
+    }
+    
+    /**
+     * Check the role of the current user.
+     *
+     */
+    public function checkRole($roles)
+    {
+        foreach ($roles as $role) {
+            if ($this->role->rol == $role) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

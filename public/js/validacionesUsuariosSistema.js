@@ -15,7 +15,7 @@ btn_enviar_usuario_sistema.on('click', function() {
     validarInput($('input#password'), regExprUser) == false ? inputs.push('Contraseña') : ''
     validarInput($('input#email'), regExprEmail) == false ? inputs.push('Email') : ''
     validarArchivo($('input#foto_usuario')) == false ? inputs.push('Imagen Festividad') : ''
-    validarSelect($('select#tipo_id')) == false ? inputs.push('Tipo de usuario') : ''
+    validarSelect($('select#role_id')) == false ? inputs.push('Tipo de usuario') : ''
 
     if (inputs.length == 0) {
         $(this).children('i').show();
@@ -36,7 +36,7 @@ $( "input#password" ).blur(function() {
 $( "input#email" ).blur(function() {
     validarInput($(this), regExprEmail);
 });
-$( "select#tipo_id" ).change(function() {
+$( "select#role_id" ).change(function() {
     validarSelect($(this));
 });
 

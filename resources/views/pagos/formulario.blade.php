@@ -54,26 +54,32 @@ input:-webkit-autofill {
 										<option value="0">Seleccionar servicio</option>
 									</select>
 								</div>
-								<div class="form-group col-md-6">
+								<div class="form-group col-md-4">
 									<label for="intervalo">Fecha inicio</label>
 									<div class="input-append success date col-md-11 no-padding">
 										<input type="text" class="form-control" name="fecha_inicio" id="fecha_inicio">
 										<span class="add-on"><span class="arrow"></span><i class="fa fa-th"></i></span>
 									</div>
 								</div>
-								<div class="form-group col-md-6">
+								<div class="form-group col-md-4">
 									<label for="intervalo">Fecha fin</label>
 									<div class="input-append success date col-md-11 no-padding">
 										<input type="text" class="form-control" name="fecha_fin" id="fecha_fin">
 										<span class="add-on"><span class="arrow"></span><i class="fa fa-th"></i></span>
 									</div>
 								</div>
+								<div class="col-sm-4 col-xs-12">
+                                    <div class="form-group">
+                                        <label for="num_empleados">Número de empleados</label>
+                                        <input type="text" class="form-control" value="" id="num_empleados" name="num_empleados" maxlength="10" placeholder="Núm. de empleados">
+                                    </div>
+                                </div>
 								<div class="form-group col-md-12">
 									<label for="trabajadores_id">Trabajadores</label>
 									<select name="trabajadores[]" id="trabajadores_id" class="select2" multiple="multiple" style="width: 100%;">
-										<option value="0">Seleccionar trabajadores</option>
+										<option value="0" disabled>Seleccionar trabajadores</option>
 										@foreach($trabajadores as $trabajador)
-											<option value="{{$trabajador->id}}">{{$trabajador->num_empleado}} - {{$trabajador->nombre}}</option>
+											<option value="{{$trabajador->id}}">{{$trabajador->num_empleado}} - {{$trabajador->nombre.' '.$trabajador->apellido_paterno.' '.$trabajador->apellido_materno}}</option>
 										@endforeach
 									</select>
 								</div>

@@ -32,7 +32,7 @@ input:-webkit-autofill {
     </div>
     @endif
     <h2>{{$title}}</h2>
-    <div class="row-fluid">
+    <div class="row-fluid" style="display: none">
         <div class="span12">
             <div class="grid simple ">
                 <div class="grid-title">
@@ -42,11 +42,12 @@ input:-webkit-autofill {
                             <div>
                                 <button class="btn btn-default" id="download"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Descargar excel master</button>
                                 <a href="{{url('altaNomina')}}" class="btn btn-primary"><i class="fa fa-plus" aria-hidden="true"></i> Nueva lista de asistencia</a>
+                                <button class="btn btn-danger" id="borrar_multiples_listas" disabled><i class="fa fa-trash" aria-hidden="true"></i> Eliminar lista</button>
                             </div>
                         </div>
                     @endif
                     <div class="grid-body">
-                        <div class="table-responsive" id="div_tabla_empresas">
+                        <div class="table-responsive" id="div_tabla_listas">
                             @include('pagos.tabla')
                         </div>
                     </div>
@@ -62,9 +63,49 @@ input:-webkit-autofill {
 <script src="{{ asset('plugins/datatables-responsive/js/lodash.min.js') }}" type="text/javascript"></script>
 <script src="{{ asset('js/tabs_accordian.js') }}"></script>
 <script src="{{ asset('js/datatables.js') }}"></script>
+<script src="{{ asset('js/listasAjax.js') }}"></script>
 <script type="text/javascript">
     $('body').delegate('#download','click', function() {
         window.location.href = "{{url('nominas/excel_master')}}";
+    });
+
+    /*Habilita el botón para dar bajas múltiples*/
+    $('body').delegate('.checkDelete','click', function() {
+        var checking = [];
+        $("input.checkDelete").each(function() {
+            if ($(this).is(':checked')) {
+                checking.push($(this).parent().parent().parent().attr('id'));
+            }
+        });
+        $('#borrar_multiples_listas').attr('disabled', checking.length > 0 ? false : true);
+    });
+
+    $('body').delegate('#borrar_multiples_listas','click', function() {
+        var checking = [];
+        $("input.checkDelete").each(function() {
+            if($(this).is(':checked')) {
+                checking.push($(this).parent().parent().parent().attr('id'));
+            }
+        });
+        if (checking.length > 0) {
+            swal({
+                title: "¿Realmente desea eliminar las <span style='color:#F8BB86'>" + checking.length + "</span> listas seleccionadas?",
+                text: "¡Esta acción no podrá deshacerse!",
+                html: true,
+                type: "warning",
+                showCancelButton: true,
+                cancelButtonText: "Cancelar",
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Si, continuar",
+                showLoaderOnConfirm: true,
+                allowEscapeKey: true,
+                allowOutsideClick: true,
+                closeOnConfirm: false
+            },
+            function() {
+                eliminarListas(checking);
+            });
+        }
     });
 </script>
 @endsection

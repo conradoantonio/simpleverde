@@ -1,24 +1,16 @@
 base_url = $('#token').attr('base-url');//Extrae la base url del input token de la vista
 console.info(base_url);
-function eliminarPregunta(id,token) {
-    url = base_url.concat('/preguntas_frecuentes/eliminar_pregunta');
+function eliminarListas(checking) {
+    url = base_url.concat('/nominas/eliminar_listas');
     $.ajax({
         method: "POST",
         url: url,
         data:{
-            "id":id,
-            "_token":token
+            "checking":checking
         },
         success: function() {
-            swal({
-                title: "Pregunta eliminada correctamente, esta página se recargará automáticamente ahora.",
-                type: "success",
-                showConfirmButton: false,
-            }, 
-                function() {
-                    location.reload();
-                });
-                setTimeout("location.reload()",1200);
+            swal.close();
+            refreshTable(window.location.href);
         },
         error: function(xhr, status, error) {
             swal({
@@ -27,5 +19,16 @@ function eliminarPregunta(id,token) {
                 html: true
             });
         }
+    });
+}
+
+function refreshTable(url) {
+    var table = $("table#example3").dataTable();
+    table.fnDestroy();
+    $('div#div_tabla_listas').fadeOut();
+    $('div#div_tabla_listas').empty();
+    $('div#div_tabla_listas').load(url, function() {
+        $('div#div_tabla_listas').fadeIn();
+        $("table#example3").dataTable();
     });
 }

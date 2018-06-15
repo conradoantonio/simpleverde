@@ -52,20 +52,18 @@
                 color: #3a7999;
                 box-shadow: inset 0 0 0 3px #3a7999;
             }
-
         </style>
     </head>
     <body>
         <div class="container">
             <div class="content">
-                @if(Auth::check())
+                @if(auth()->check())
                     <div class="title">Parece que lo que buscas no existe. <br> Regresa a nuestro dashboard.</div>
-                    <a href="<?php echo url();?>/dashboard"><button>Menú Principal</button></a>
+                    <a href="{{url('dashboard')}}"><button>Menú Principal</button></a>
                 @else
                     <div class="title">Parece que lo que buscas no existe. <br> Inicia sesión para navegar en nuestro panel.</div>
-                    <a href="<?php echo url();?>"><button>Login</button></a>
+                    <a href="{{url('')}}"><button>Login</button></a>
                 @endif
-
             </div>
         </div>
     </body>

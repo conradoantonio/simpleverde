@@ -12,15 +12,8 @@ class VerifyCsrfToken extends BaseVerifier
      * @var array
      */
     protected $except = [
-        '/cargar/quienes_somos',//Se puso aquí porque daba error al subir archivos de más de 6 mb.
         //Principio de los de conekta prueba
-        '/post_send',
         '/cargar/codigo_postal',
-        '/crear_cliente',
-        '/app/validar_cargo',
-        '/app/validar_cargo_oxxo',
-        '/procesar_orden',
-        '/app/orden_empresa',
         //Fin de los de conekta prueba
         '/productos/cargar_subcategorias',
         '/subir_imagenes',

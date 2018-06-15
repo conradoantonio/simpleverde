@@ -14,8 +14,9 @@ btn_enviar.on('click', function() {
     
     validarSelect($('select#empresa_id')) == false ? inputs.push('Empresa') : ''
     validarSelect($('select#servicio_id')) == false ? inputs.push('Servicio') : ''
-    validarInput($('input#fecha_inicio'), regExprDate) == false ? inputs.push('Fecha inicio') : ''
-    validarInput($('input#fecha_fin'), regExprDate) == false ? inputs.push('Fecha fin') : ''
+    validarInputDate($('input#fecha_inicio'), regExprDate) == false ? inputs.push('Fecha inicio') : ''
+    validarInputDate($('input#fecha_fin'), regExprDate) == false ? inputs.push('Fecha fin') : ''
+    validarInput($('input#num_empleados'), regExprNum) == false ? inputs.push('Número de empleados') : ''
     validarSelect($('select#trabajadores_id')) == false ? inputs.push('Trabajadores') : ''
 
     if (inputs.length == 0) {
@@ -35,19 +36,33 @@ $( "select#servicio_id" ).change(function() {
     validarSelect($(this));
 });
 $( "input#fecha_inicio" ).blur(function() {
-    validarInput($(this), regExprTextoLimite);
+    validarInputDate($(this), regExprDate);
 });
 $( "input#fecha_fin" ).blur(function() {
-    validarInput($(this), regExprTextoLimite);
+    validarInputDate($(this), regExprDate);
+});
+$( "input#num_empleados" ).blur(function() {
+    validarInput($(this), regExprNum);
 });
 $( "select#trabajadores_id" ).change(function() {
     validarSelect($(this));
 });
 
-function validarInput (campo,regExpr) {
+function validarInputDate (campo,regExpr) {
     if (!$(campo).val().match(regExpr)) {
         $(campo).parent().addClass("has-error");
         msgError = msgError + $(campo).parent().parent().children('label').text() + '\n';
+        return false;
+    } else {
+        $(campo).parent().removeClass("has-error");
+        return true;
+    }
+}
+
+function validarInput (campo,regExpr) {
+    if (!$(campo).val().match(regExpr)) {
+        $(campo).parent().addClass("has-error");
+        msgError = msgError + $(campo).parent().children('label').text() + '\n';
         return false;
     } else {
         $(campo).parent().removeClass("has-error");

@@ -1,6 +1,7 @@
 <table class="table" id="example3">
     <thead>
         <tr>
+            <th></th>
             <th>ID</th>
             <th>Empresa</th>
             <th>Intervalo fechas</th>
@@ -12,6 +13,12 @@
         @if(count($pagos) > 0)
             @foreach($pagos as $pago)
                 <tr class="" id="{{$pago->id}}">
+                    <td class="small-cell v-align-middle">
+                        <div class="checkbox check-success">
+                            <input id="checkbox{{$pago->id}}" type="checkbox" class="checkDelete" value="1">
+                            <label for="checkbox{{$pago->id}}"></label>
+                        </div>
+                    </td>
                     <td>{{$pago->id}}</td>
                     <td>{{$pago->empresa->nombre}}</td>
                     <td>{{date('d/M/Y', strtotime($pago->fecha_inicio))}} - {{date('d/M/Y', strtotime($pago->fecha_fin))}}</td>
