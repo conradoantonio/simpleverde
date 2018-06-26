@@ -32,16 +32,17 @@ class EmpresasController extends Controller
      */
     public function index(Request $request)
     {
-        if (auth()->check()) {
+        if (auth()->user()->privilegios && auth()->user()->privilegios->cli_act == 1) {
             $title = $menu ="Clientes (Activos)";
+            $modify = auth()->user()->privilegios->cli_act_mod == 1 ? 1 : 0;
             $status = 1;
             $empresas = Empresa::where('status', $status)->get();
             if ($request->ajax()) {
-                return view('empresas.tabla', ['empresas' => $empresas, 'status' => $status]);
+                return view('empresas.tabla', ['empresas' => $empresas, 'status' => $status, 'modify' => $modify]);
             }
-            return view('empresas.empresas', ['empresas' => $empresas, 'status' => $status, 'menu' => $menu, 'title' => $title]);
+            return view('empresas.empresas', ['empresas' => $empresas, 'status' => $status, 'modify' => $modify, 'menu' => $menu, 'title' => $title]);
         } else {
-            return redirect()->to('/');
+            return view('errors.503');
         }
     }
 
@@ -52,16 +53,17 @@ class EmpresasController extends Controller
      */
     public function inactivas(Request $request)
     {
-        if (auth()->check()) {
+        if (auth()->user()->privilegios && auth()->user()->privilegios->cli_baj == 1) {
+            $modify = auth()->user()->privilegios->cli_baj_mod == 1 ? 1 : 0;
             $title = $menu ="Clientes (Inactivos)";
             $status = 0;
             $empresas = Empresa::where('status', $status)->get();
             if ($request->ajax()) {
-                return view('empresas.tabla', ['empresas' => $empresas, 'status' => $status]);
+                return view('empresas.tabla', ['empresas' => $empresas, 'status' => $status, 'modify' => $modify]);
             }
-            return view('empresas.empresas', ['empresas' => $empresas, 'status' => $status, 'menu' => $menu, 'title' => $title]);
+            return view('empresas.empresas', ['empresas' => $empresas, 'status' => $status, 'modify' => $modify, 'menu' => $menu, 'title' => $title]);
         } else {
-            return redirect()->to('/');
+            return view('errors.503');
         }
     }
 
@@ -93,7 +95,7 @@ class EmpresasController extends Controller
 
         $empresa->save();
 
-        return response(['msg' => 'Cliente editado exitosamente', 'status' => 'success', 'url' => url('empresas')], 200);
+        return response(['msg' => 'Cliente guardado exitosamente', 'status' => 'success', 'url' => url('empresas')], 200);
     }
 
     /**

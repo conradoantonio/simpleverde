@@ -25,7 +25,7 @@ class PagosController extends Controller
 	 */
 	public function index(Request $req)
 	{
-		if (auth()->check()) {
+        if (auth()->user()->privilegios && auth()->user()->privilegios->asistencias == 1) {
 			$menu = $title = "Lista de asistencia";
 			$pagos = Pago::where('status', '!=', '0')->get();
 
@@ -36,7 +36,7 @@ class PagosController extends Controller
 			}
 			return view('pagos.pagos', ['pagos' => $pagos, 'menu' => $menu, 'title' => $title]);
 		} else {
-			return redirect()->to('/');
+			return view('errors.503');
 		}
 	}
 
@@ -47,7 +47,7 @@ class PagosController extends Controller
 	 */
 	public function historial()
 	{
-		if (auth()->check()) {
+        if (auth()->user()->privilegios && auth()->user()->privilegios->historial_asistencias == 1) {
 			$menu = $title = "Historial";
 			$pagos = Pago::where('status', '0')->get();
 
@@ -203,7 +203,7 @@ class PagosController extends Controller
 				$asistencia = new Asistencia();
 				$asistencia->usuario_pago_id = $usuarioPago->id;
 				$asistencia->dia = $d;
-				$asistencia->status = '';
+				$asistencia->status = '-';
 				$asistencia->save();
 			}
 		}
@@ -254,13 +254,19 @@ class PagosController extends Controller
 		return view('pagos.pagar', ['pago' => $pago,'menu' => $menu, 'title' => $title, 'asistencias' => $asistencias, 'pago_id' => $id]);
 	}
 
-	public function formulario() {
-		$menu = "Lista de asistencia";
-		$title = "Formulario de asistencia";
-		$empresas = Empresa::where('status',1)->get();
-		$trabajadores = Empleado::where('status',1)->get();
+	public function formulario() 
+	{
+        if (auth()->user()->privilegios && auth()->user()->privilegios->asistencias == 1) {
 
-		return view('pagos.formulario', ['empresas' => $empresas, 'trabajadores' => $trabajadores, 'menu' => $menu, 'title' => $title]);
+			$menu = "Lista de asistencia";
+			$title = "Formulario de asistencia";
+			$empresas = Empresa::where('status',1)->get();
+			$trabajadores = Empleado::where('status',1)->get();
+
+			return view('pagos.formulario', ['empresas' => $empresas, 'trabajadores' => $trabajadores, 'menu' => $menu, 'title' => $title]);
+		} else {
+			return view('errors.503');
+		}
 	}
 
 	public function save(Request $req) {
@@ -370,18 +376,19 @@ class PagosController extends Controller
 				'Dias festivos' => $asistencia->festivo,
 				'Turnos diurnos' => $asistencia->diurno,
 				'Turnos nocturnos' => $asistencia->nocturno,
-				'Empresa ' => $pago->empresa->nombre
+				'Empresa ' => $pago->empresa->nombre,
+				'Notas' => $asistencia->pago->notas
 			];
 		}
 
         Excel::create("Resumen de asistencias del $intervalo", function($excel) use($array) {
             $excel->sheet('Hoja 1', function($sheet) use($array) {
-                $sheet->cells('A:J', function($cells) {
+                $sheet->cells('A:K', function($cells) {
                     $cells->setAlignment('center');
                     $cells->setValignment('center');
                 });
 
-                $sheet->cells('A1:J1', function($cells) {
+                $sheet->cells('A1:K1', function($cells) {
                     $cells->setFontWeight('bold');
                 });
 

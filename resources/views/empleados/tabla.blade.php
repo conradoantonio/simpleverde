@@ -26,9 +26,11 @@
                     <td class="text">{{$empleado->apellido_materno}}</td>
                     <td class="">{{$empleado->num_empleado}}</td>
                     <td>
-                        <a href="{{url('empleados/formulario')}}/{{$empleado->id}}"><button type="button" class="btn btn-info editar_empleado">Editar</button></a>
                         <a href="{{url('empleados/detalle')}}/{{$empleado->id}}"><button type="button" class="btn btn-success detalle_empleado">Info</button></a>
-                        <button type="button" change-to={{$empleado->status == 1 ? '0' : '1'}} class="btn btn-danger baja_empleado">{{$empleado->status == 1 ? 'Baja' : 'Reactivar'}}</button>
+                        @if ( $modify == 1 )
+                            <a href="{{url('empleados/formulario')}}/{{$empleado->id}}"><button type="button" class="btn btn-info editar_empleado">Editar</button></a>
+                            <button type="button" change-to={{$empleado->status == 1 ? '0' : '1'}} class="btn btn-danger baja_empleado">{{$empleado->status == 1 ? 'Baja' : 'Reactivar'}}</button>
+                        @endif
                     </td>
                 </tr>
             @endforeach

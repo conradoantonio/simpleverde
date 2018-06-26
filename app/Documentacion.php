@@ -18,7 +18,7 @@ class Documentacion extends Model
     	'empleado_id', 'comprobante_domicilio', 'identificacion', 'curp', 'rfc', 'hoja_imss', 'carta_no_antecedentes_penales', 'acta_nacimiento', 
         'comprobante_estudios', 'resultado_psicometrias', 'examen_socieconomico', 'examen_toxicologico', 'solicitud_frente_vuelta', 'deposito_uniforme', 
         'constancia_recepcion_uniforme', 'comprobante_recepcion_reglamento_interno_trabajo', 'autorizacion_pago_tarjeta', 'carta_aceptacion_cambio_lugar', 
-        'finiquito', 'calendario', 'formato_datos_personales', 'solicitud_autorizacion_consulta', 'created_at'
+        'finiquito', 'calendario', 'formato_datos_personales', 'cartilla_militar', 'solicitud_autorizacion_consulta', 'created_at'
     ];
 
     /**

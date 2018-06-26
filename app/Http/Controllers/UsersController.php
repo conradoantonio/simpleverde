@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Usuario;
+use App\Privilegio;
 use App\User;
 use App\Role;
 use DB;
@@ -27,15 +28,41 @@ class UsersController extends Controller
      */
     public function index(Request $request)
     {
-        $title = "Usuarios Sistema";
-        $menu = "Usuarios";
-        $usuarios = User::where('user', '!=', auth()->user()->user)->get();
-        $roles = Role::all();
+        if (auth()->user()->privilegios && auth()->user()->privilegios->usuarios == 1) {
+            $title = "Usuarios Sistema";
+            $menu = "Usuarios";
+            $usuarios = User::where('user', '!=', auth()->user()->user)->get();
+            $roles = Role::all();
 
-        if ($request->ajax()) {
-            return view('usuarios.usuariosSistema.table', ['usuarios' => $usuarios]);
+            if ($request->ajax()) {
+                return view('usuarios.usuariosSistema.table', ['usuarios' => $usuarios]);
+            }
+            return view('usuarios.usuariosSistema.usuariosSistema', ['usuarios' => $usuarios, 'roles' => $roles, 'menu' => $menu, 'title' => $title]);
+        } else {
+            return view('errors.503');
         }
-        return view('usuarios.usuariosSistema.usuariosSistema', ['usuarios' => $usuarios, 'roles' => $roles, 'menu' => $menu, 'title' => $title]);
+    }
+
+    /**
+     * Carga el formulario de empleados.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function cargar_formulario($id = 0)
+    {
+        if (auth()->user()->privilegios && auth()->user()->privilegios->usuarios == 1) {
+
+            $title = "Formulario de usuarios";
+            $menu = "Usuarios";
+            $usuario = null;
+            $editable = 1;
+            if ($id) {
+                $usuario = User::find($id);
+            }
+            return view('usuarios.usuariosSistema.formulario', ['usuario' => $usuario, 'editable' => $editable, 'menu' => $menu, 'title' => $title]);
+        } else {
+            return view('errors.503');
+        }
     }
 
     /**
@@ -67,59 +94,89 @@ class UsersController extends Controller
     }
 
     /**
-     * Guarda o edita un usuario del sistema, validando imagen y que el nombre de usuario sea único
+     * Guarda usuario del sistema, validando que el nombre de usuario sea único.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return redirect /admin/usuarios/sistema
      */
-    public function guardar_usuario(Request $request)
+    public function guardar(Request $req)
     {
-        $name = "img/user_perfil/default.jpg";//Solo permanecerá con ese nombre cuando NO se seleccione una imágen como tal.
-        if ($request->file('foto_usuario')) {
-            $extensiones_permitidas = array("1"=>"jpeg", "2"=>"jpg", "3"=>"png");
-            $extension_archivo = $request->file('foto_usuario')->getClientOriginalExtension();
-            if (array_search($extension_archivo, $extensiones_permitidas)) {
-                $name = 'img/user_perfil/'.time().'.'.$request->file('foto_usuario')->getClientOriginalExtension();
-                $imagen_portada = Image::make($request->file('foto_usuario'))
-                ->resize(300, 300)
-                ->save($name);
-            }
-        }
+        $user = User::validar_username($req->username);
+        
+        if (count($user)) { return response(['msg' => 'Este nombre de usuario ya existe, trate con uno diferente', 'status' => 'error'], 400); }
 
-        if ($request->id != '') {// es un edit
-            $validado = DB::table('users')
-            ->where('user', '=', $request->user_name)
-            ->where('user', '!=', $request->user_name_old)
-            ->get();
-        } else {// es un insert
-            $validado = DB::table('users')
-            ->where('user', '=', $request->user_name)
-            ->get();
-        }
+        /*Privilegios*/
+        $privilegios = New Privilegio;
 
-        if ($validado) {
-            return ['msg' => 'Email unavailable'];
-        } else {
-            if ($request->id != '') {//Es un edit
-                $usuarioSistema = User::find($request->id);
-                $usuarioSistema->user = $request->user_name;
-                $request->password != '' ? $usuarioSistema->password = bcrypt($request->password) : '';
-                $usuarioSistema->email = $request->email;
-                $usuarioSistema->role_id = $request->role_id;
-                $name != 'img/user_perfil/default.jpg' ? $usuarioSistema->foto_usuario = $name : '';
-            } else {//Es un insert
-                $usuarioSistema = new User;
-                $usuarioSistema->user = $request->user_name;
-                $usuarioSistema->password = bcrypt($request->password);
-                $usuarioSistema->foto_usuario = $name;
-                $usuarioSistema->email = $request->email;
-                $usuarioSistema->role_id = $request->role_id;
-            }
+        $privilegios->cli_act = $req->cli_act ? 1 : 0;
+        $privilegios->cli_act_mod = $req->cli_act_mod ? 1 : 0;
+        $privilegios->cli_baj = $req->cli_baj ? 1 : 0;
+        $privilegios->cli_baj_mod = $req->cli_baj_mod ? 1 : 0;
+        $privilegios->emp_act = $req->emp_act ? 1 : 0;
+        $privilegios->emp_act_mod = $req->emp_act_mod ? 1 : 0;
+        $privilegios->emp_baj = $req->emp_baj ? 1 : 0;
+        $privilegios->emp_baj_mod = $req->emp_baj_mod ? 1 : 0;
+        $privilegios->usuarios = $req->usuarios ? 1 : 0;
+        $privilegios->asistencias = $req->asistencias ? 1 : 0;
+        $privilegios->historial_asistencias = $req->historial_asistencias ? 1 : 0;
 
-            $usuarioSistema->save();
+        $privilegios->save();
 
-            return ['msg' => 'Saved!'];
-        }
+        $user = New User;
+
+        /*User*/
+        $user->user = $req->username;
+        $user->email = $req->email;
+        $user->foto_usuario = 'img/user_perfil/default.jpg';
+        $user->password = bcrypt($req->password);
+        $user->privilegio_id = $privilegios->id;
+
+        $user->save();
+
+        return response(['msg' => 'Usuario creado exitósamente', 'status' => 'success', 'url' => url('usuarios/sistema')], 200);
+    }
+
+    /**
+     * Guarda usuario del sistema, validando que el nombre de usuario sea único.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return redirect /admin/usuarios/sistema
+     */
+    public function editar(Request $req)
+    {
+        $valid = User::validar_username($req->username, $req->username_old);
+
+        if (count($valid) > 0) { return response(['msg' => 'Este nombre de usuario ya existe, trate con uno diferente', 'status' => 'error'], 400); }
+
+        $privilegios = Privilegio::findOrCreate($req->privilegio_id);
+        $user = User::find($req->user_id);
+
+        if (!$user) { return response(['msg' => 'Usuario no encontrado, trate cargando esta página nuevamente', 'status' => 'error'], 404); }
+
+        /*Privilegios*/
+        $privilegios->cli_act = $req->cli_act ? 1 : 0;
+        $privilegios->cli_act_mod = $req->cli_act_mod ? 1 : 0;
+        $privilegios->cli_baj = $req->cli_baj ? 1 : 0;
+        $privilegios->cli_baj_mod = $req->cli_baj_mod ? 1 : 0;
+        $privilegios->emp_act = $req->emp_act ? 1 : 0;
+        $privilegios->emp_act_mod = $req->emp_act_mod ? 1 : 0;
+        $privilegios->emp_baj = $req->emp_baj ? 1 : 0;
+        $privilegios->emp_baj_mod = $req->emp_baj_mod ? 1 : 0;
+        $privilegios->usuarios = $req->usuarios ? 1 : 0;
+        $privilegios->asistencias = $req->asistencias ? 1 : 0;
+        $privilegios->historial_asistencias = $req->historial_asistencias ? 1 : 0;
+
+        $privilegios->save();
+
+        /*Usuario*/
+        $user->privilegio_id = $privilegios->id;
+        $user->user = $req->username;
+        $user->email = $req->email;
+        $req->password ? $user->password = bcrypt($req->password) : '';
+
+        $user->save();
+
+        return response(['msg' => 'Usuario modificado exitósamente', 'status' => 'success', 'url' => url('usuarios/sistema')], 200);
     }
 
     /**
@@ -174,84 +231,6 @@ class UsersController extends Controller
      *=====================================================================================================================
      */
 
-    /**
-     * Muestra la tabla de los usuarios registrados de la aplicación.
-     *
-     * @param  $order Especifica el orden de los registros de los usuarios de la aplicación
-     * @return view usuarios.usuariosApp.usuariosApp
-     */
-    public function usuariosApp(Request $request)
-    {
-        if (auth()->check()) {
-            $title = "Usuarios App";
-            $menu = "Usuarios";
-            $usuarios = Usuario::where('tipo', 1)
-            ->orderBy('id')
-            ->get();
-
-            if ($request->ajax()) {
-                return view('usuarios.usuariosApp.table', ['usuarios' => $usuarios]);
-            }
-
-            return view('usuarios.usuariosApp.usuariosApp', ['menu' => $menu , 'usuarios' => $usuarios, 'title' => $title]);
-        } else {
-            return redirect()->to('/');
-        }
-    }
-
-    /**
-     * Guarda un nuevo usuario de la aplicación
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return Nada
-     */
-    public function guardar_usuario_app(Request $request)
-    {
-        $validado = Usuario::buscar_usuario_por_correo($request->correo);
-
-        if (count($validado)) {
-            return ['msg' => 'Email unavailable'];
-        } else {
-            $usuarioSistema = new Usuario;
-            $usuarioSistema->password = md5($request->password);
-            $usuarioSistema->nombre = $request->nombre;
-            $usuarioSistema->apellido = $request->apellido;
-            $usuarioSistema->correo = $request->correo;
-            $usuarioSistema->celular = $request->celular;
-            $usuarioSistema->foto_perfil = "img/usuario_app/default.jpg";
-            $usuarioSistema->created_at =  $this->actual_datetime;
-       
-            $usuarioSistema->save();
-
-            return ['msg' => 'Saved!'];
-        }
-    }
-
-    /**
-     * Guarda un nuevo usuario de la aplicación
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return Nada
-     */
-    public function editar_usuario_app(Request $request)
-    {   
-        $validado = Usuario::buscar_usuario_por_correo($request->correo, $request->correo_viejo);
-
-        if (count($validado)) {
-            return ['msg' => 'Email unavailable'];
-        } else {
-            $usuarioSistema = Usuario::find($request->id);
-            $request->password ? $usuarioSistema->password = md5($request->password) : '';
-            $usuarioSistema->nombre = $request->nombre;
-            $usuarioSistema->apellido = $request->apellido;
-            $usuarioSistema->correo = $request->correo;
-            $usuarioSistema->celular = $request->celular;
-
-            $usuarioSistema->save();
-
-            return ['msg' => 'Saved!'];
-        }
-    }
 
     /**
      * Cambia el status de un usuario de la aplicación a bloqueado, activo o eliminado.

@@ -28,7 +28,7 @@ class User extends Model implements AuthenticatableContract,
      *
      * @var array
      */
-    protected $fillable = ['user', 'password', 'email', 'foto_usuario', 'remember_token', 'status'];
+    protected $fillable = ['user', 'password', 'email', 'foto_usuario', 'privilegio_id', 'remember_token', 'status'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -36,6 +36,15 @@ class User extends Model implements AuthenticatableContract,
      * @var array
      */
     protected $hidden = ['password', 'remember_token'];
+
+    /**
+     * Check the rol of the current user.
+     *
+     */
+    public function privilegios() 
+    {
+        return $this->hasOne('App\Privilegio', 'id', 'privilegio_id');
+    }
 
     /**
      * Check the rol of the current user.
@@ -58,5 +67,18 @@ class User extends Model implements AuthenticatableContract,
             }
         }
         return false;
+    }
+
+    /**
+     * Check the rol of the current user.
+     *
+     */
+    static function validar_username($name, $name_old = false)
+    {
+        $query = User::where('user', $name);
+
+        $query = $name_old ? $query->where('user', '!=', $name_old) : $query;
+
+        return $query->get();  
     }
 }

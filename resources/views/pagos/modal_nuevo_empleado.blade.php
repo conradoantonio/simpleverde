@@ -11,7 +11,7 @@
                         <div class="col-sm-6 col-xs-12 hide">
                             <div class="form-group">
                                 <label for="pago_id">Pago ID</label>
-                                <input type="text" class="form-control" id="pago_id" name="pago_id" value="{{$pago_id}}">
+                                <input type="text" class="" id="pago_id" name="pago_id" value="{{$pago_id}}">
                             </div>
                         </div>
                         <div class="form-group col-md-12">

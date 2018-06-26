@@ -14,93 +14,7 @@ input:-webkit-autofill {
 </style>
 <div class="text-center" style="margin: 20px;">
 
-    <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="titulo-form-usuario-sistema" id="formulario-usuario-sistema">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="titulo-form-usuario-sistema">Nuevo usuario (sistema)</h4>
-                </div>
-                <form id="form_usuario_sistema" onsubmit="return false" action="{{ url('usuarios/sistema/guardar_usuario') }}" enctype="multipart/form-data" method="POST" autocomplete="off">
-                    <input type="hidden" name="_token" id="token" value="{!! csrf_token() !!}" base-url="<?php echo url();?>">
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-sm-6 col-xs-12 hidden">
-                                <div class="form-group">
-                                    <label for="id">ID</label>
-                                    <input type="text" class="form-control" id="id" name="id">
-                                </div>
-                            </div>
-                            <div class="col-sm-12 col-xs-12 hidden">
-                                <div class="form-group">
-                                    <label for="user">Username (Old)</label>
-                                    <input type="text" class="form-control" id="user_name_old" name="user_name_old" placeholder="Usuario viejo">
-                                </div>
-                            </div>
-                            <div class="col-sm-12 col-xs-12">
-                                <div class="form-group">
-                                    <label for="user">Username</label>
-                                    <input type="text" class="form-control" id="user_name" name="user_name" placeholder="Usuario">
-                                </div>
-                            </div>
-                            <div class="form-group col-md-12">
-                                <label for="role_id">Tipo de usuario</label>
-                                <select name="role_id" id="role_id" class="form-control">
-                                    <option value="0">Seleccionar tipo de usuario</option>
-                                    @foreach($roles as $rol)
-                                        <option value="{{$rol->id}}">{{$rol->rol}}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-sm-12 col-xs-12">
-                                <div class="form-group">
-                                    <label for="password">Contraseña</label>
-                                    <input type="password" class="form-control" id="password" name="password" placeholder="Contraseña">
-                                </div>
-                            </div>
-                            <div class="col-sm-12 col-xs-12">
-                                <div class="form-group">
-                                    <label for="user">Email</label>
-                                    <input type="text" class="form-control" id="email" name="email" placeholder="Email">
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="row" id="input_foto_usuario">
-                            <div class="col-sm-12 col-xs-12">
-                                <div class="form-group">
-                                    <label for="foto-usuario">Foto usuario</label>
-                                    <input type="file" class="form-control" id="foto_usuario" name="foto_usuario">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row" id="foto_usuario">
-                            <div class="col-sm-12 col-xs-12">
-                                <div class="form-group">
-                                    <label>Foto actual</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary" id="guardar-usuario-sistema">
-                            Guardar
-                            <i class="fa fa-spinner fa-spin" style="display: none;"></i>
-                        </button>
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
-                    </div>
-                </form>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
-
     <h2>Lista de usuarios del panel</h2>
-
-    <div class="alert alert-error hide" id="request-error">
-        {{-- <button data-dismiss="alert" class="close"></button> --}}
-        <strong>Atención: </strong> El usuario no ha sido guardado debido a que nombre de usuario otorgado no se encuentra disponible. Porfavor, intente con otro distinto.
-        {{-- <button type="button" class="btn btn-danger btn-sm btn-small pull-right">Reintentar</button> --}}
-    </div>
 
     <div class="row-fluid">
         <div class="span12">
@@ -108,7 +22,7 @@ input:-webkit-autofill {
                 <div class="grid-title">
                     <h4>Opciones <span class="semi-bold">adicionales</span></h4>
                     <div>
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#formulario-usuario-sistema" id="nuevo-usuario"><i class="fa fa-plus" aria-hidden="true"></i> Nuevo usuario (sistema)</button>
+                        <a href="{{url('usuarios/sistema/formulario')}}"><button type="button" class="btn btn-primary"><i class="fa fa-plus" aria-hidden="true"></i> Nuevo usuario (sistema)</button></a>
                     </div>
                     <div class="grid-body ">
                         <div class="table-responsive" id="tabla_usuarios_sistema">
@@ -129,73 +43,28 @@ input:-webkit-autofill {
 <script src="{{ asset('js/usuariosSistemaAjax.js') }}"></script>
 <script src="{{ asset('js/validacionesUsuariosSistema.js') }}"></script>
 <script type="text/javascript">
+    $('body').delegate('.eliminar-usuario-sistema','click', function() {
+        var usuario = $(this).parent().siblings("td:nth-child(2)").text();
+        var token = $("#token").val();
+        var id = $(this).parent().parent().attr('id');
 
-$('#formulario-usuario-sistema').on('hidden.bs.modal', function (e) {
-    $('#formulario-usuario-sistema div.form-group').removeClass('has-error');
-    $('input#foto_usuario').val('');
-    $('input.form-control').val('');
-    $('select.form-control').val(0);
-    $('#formulario-usuario-sistema div#usuario_caracteristicas').show();
-});
-
-$('body').delegate('button#nuevo-usuario','click', function() {
-    $('div#foto_usuario').hide();
-    $("div#input_foto_usuario").hide();
-    $("h4#titulo-form-usuario-sistema").text('Nuevo usuario (sistema)');
-    $('input.form-control').val('');
-});
-
-$('body').delegate('.editar-usuario','click', function() {
-
-    $('input.form-control').val('');
-    id = $(this).parent().siblings("td:nth-child(1)").text(),
-    user = $(this).parent().siblings("td:nth-child(2)").text(),
-    email = $(this).parent().siblings("td:nth-child(3)").text(),
-    imagen = $(this).parent().siblings("td:nth-child(4)").text(),
-    role_id = $(this).parent().siblings("td:nth-child(5)").text(),
-
-    $("h4#titulo-form-usuario-sistema").text('Editar usuario');
-    $("div#input_foto_usuario").show();
-    $("#formulario-usuario-sistema input#id").val(id);
-    $("#formulario-usuario-sistema input#user_name").val(user);
-    $("#formulario-usuario-sistema input#user_name_old").val(user);
-    $("#formulario-usuario-sistema input#email").val(email);
-    $('#formulario-usuario-sistema select#role_id').val(role_id);
-
-    $('#formulario-usuario-sistema div#usuario_caracteristicas').hide();
-
-    $('div#foto_usuario').children().children().children().remove('img#foto_usuario');
-    $('div#foto_usuario').children().children().append(
-        "<img src='<?php echo asset('');?>/"+imagen+"' class='img-responsive img-thumbnail' alt='Responsive image' id='foto_usuario'>"
-    );
-    $("div#foto_usuario").show();
-
-    $('#formulario-usuario-sistema').modal();
-});
-
-$('body').delegate('.eliminar-usuario-sistema','click', function() {
-    var usuario = $(this).parent().siblings("td:nth-child(2)").text();
-    var token = $("#token").val();
-    var id = $(this).parent().parent().attr('id');
-
-    swal({
-        title: "¿Realmente desea eliminar al usuario <span style='color:#F8BB86'>" + usuario + "</span>?",
-        text: "¡Cuidado!",
-        html: true,
-        type: "warning",
-        showCancelButton: true,
-        cancelButtonText: "Cancelar",
-        confirmButtonColor: "#DD6B55",
-        confirmButtonText: "Si, continuar",
-        showLoaderOnConfirm: true,
-        allowEscapeKey: true,
-        allowOutsideClick: true,
-        closeOnConfirm: false
-    },
-    function() {
-        eliminarUsuarioSistema(id,token);
+        swal({
+            title: "¿Realmente desea eliminar al usuario <span style='color:#F8BB86'>" + usuario + "</span>?",
+            text: "¡Cuidado!",
+            html: true,
+            type: "warning",
+            showCancelButton: true,
+            cancelButtonText: "Cancelar",
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Si, continuar",
+            showLoaderOnConfirm: true,
+            allowEscapeKey: true,
+            allowOutsideClick: true,
+            closeOnConfirm: false
+        },
+        function() {
+            eliminarUsuarioSistema(id,token);
+        });
     });
-});
-
 </script>
 @endsection

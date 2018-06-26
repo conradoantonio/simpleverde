@@ -36,8 +36,11 @@ input:-webkit-autofill {
                     <h4>Opciones <span class="semi-bold">adicionales</span></h4>
                     <div>
                         <a href="{{url("empleados/exportar/general/{$status}")}}"><button type="button" class="btn btn-info {{count($empleados) ? '' : 'hide'}}" id="exportar_empleados_excel"><i class="fa fa-download" aria-hidden="true"></i> Exportar empleados</button></a>
-                        <button type="button" class="btn btn-danger {{count($empleados) ? '' : 'hide'}}" id="dar_baja_empleados"><i class="fa {{$status == 1 ? 'fa-trash' : 'fa-undo'}}" aria-hidden="true"></i> {{$status == 1 ? 'Dar de baja' : 'Reactivar empleados'}}</button>
-                        @if($status == 1)
+                        @if($modify == 1)
+                            <button type="button" class="btn btn-danger {{count($empleados) ? '' : 'hide'}}" id="dar_baja_empleados"><i class="fa {{$status == 1 ? 'fa-trash' : 'fa-undo'}}" aria-hidden="true"></i> {{$status == 1 ? 'Dar de baja' : 'Reactivar empleados'}}</button>
+                        @endif
+
+                        @if($status == 1 && $modify == 1)
                             <a href="{{url('empleados/formulario')}}"><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#formulario_empleado" id="nuevo_empleado"><i class="fa fa-plus" aria-hidden="true"></i> Nuevo empleado</button></a>
                         @endif
                     </div>

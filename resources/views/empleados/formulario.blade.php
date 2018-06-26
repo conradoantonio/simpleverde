@@ -53,8 +53,8 @@
                                     </div>
                                     <div class="col-sm-12 col-xs-12">
                                         <div class="form-group">
-                                            <label for="num_cuenta" class="required">No. de cuenta</label>
-                                            <input type="text" class="form-control not-empty" value="{{$empleado ? $empleado->num_cuenta : ''}}" id="num_cuenta" name="num_cuenta" maxlength="10" placeholder="No. de cuenta" data-msg="No. de cuenta">
+                                            <label for="num_cuenta">No. de cuenta</label>
+                                            <input type="text" class="form-control" value="{{$empleado ? $empleado->num_cuenta : ''}}" id="num_cuenta" name="num_cuenta" maxlength="10" placeholder="No. de cuenta" data-msg="No. de cuenta">
                                         </div>
                                     </div>
                                     <div class="col-sm-12 col-xs-12">
@@ -71,8 +71,8 @@
                                     </div>
                                     <div class="col-sm-6 col-xs-12">
                                         <div class="form-group">
-                                            <label for="telefono" class="required">Teléfono</label>
-                                            <input type="text" class="form-control not-empty" value="{{$empleado ? $empleado->telefono : ''}}" id="telefono" name="telefono" placeholder="Teléfono" data-msg="Teléfono">
+                                            <label for="telefono">Teléfono</label>
+                                            <input type="text" class="form-control" value="{{$empleado ? $empleado->telefono : ''}}" id="telefono" name="telefono" placeholder="Teléfono" data-msg="Teléfono">
                                         </div>
                                     </div>
                                     <div class="col-sm-6 col-xs-12">
@@ -89,14 +89,14 @@
                                     </div>
                                     <div class="col-sm-6 col-xs-12">
                                         <div class="form-group">
-                                            <label for="nss" class="required">NSS</label>
-                                            <input type="text" class="form-control not-empty" value="{{$empleado ? $empleado->nss : ''}}" id="nss" name="nss" placeholder="NSS" data-msg="NSS">
+                                            <label for="nss">NSS</label>
+                                            <input type="text" class="form-control" value="{{$empleado ? $empleado->nss : ''}}" id="nss" name="nss" placeholder="NSS" data-msg="NSS">
                                         </div>
                                     </div>
                                     <div class="col-sm-6 col-xs-12">
                                         <div class="form-group">
-                                            <label for="telefono_emergencia" class="required">Télefono de emergencia</label>
-                                            <input type="text" class="form-control not-empty" value="{{$empleado ? $empleado->telefono_emergencia : ''}}" id="telefono_emergencia" name="telefono_emergencia" placeholder="Télefono de emergencia" data-msg="Télefono de emergencia">
+                                            <label for="telefono_emergencia">Télefono de emergencia</label>
+                                            <input type="text" class="form-control" value="{{$empleado ? $empleado->telefono_emergencia : ''}}" id="telefono_emergencia" name="telefono_emergencia" placeholder="Télefono de emergencia" data-msg="Télefono de emergencia">
                                         </div>
                                     </div>
                                     <div class="col-sm-6 col-xs-12">
@@ -263,6 +263,13 @@
                                         <div class="checkbox check-primary">
                                             <input id="examen_toxicologico" name="examen_toxicologico" type="checkbox" {{($empleado ? ($empleado->documentacion->examen_toxicologico ? 'checked' : '') : '')}}>
                                             <label for="examen_toxicologico" style="padding-left:0px;"></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4 col-xs-12" style="padding-bottom: 20px;">
+                                        <label for="cartilla_militar">Cartilla militar</label>
+                                        <div class="checkbox check-primary">
+                                            <input id="cartilla_militar" name="cartilla_militar" type="checkbox" {{($empleado ? ($empleado->documentacion->cartilla_militar ? 'checked' : '') : '')}}>
+                                            <label for="cartilla_militar" style="padding-left:0px;"></label>
                                         </div>
                                     </div>
                                     <div class="col-sm-4 col-xs-12">

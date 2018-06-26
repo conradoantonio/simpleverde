@@ -78,7 +78,6 @@ img#company-logo{
                         <div class="table-responsive" id="div_tabla_empresas">
                             <table class="table table-bordered table-responsive" id="nomina">
 								<thead>
-									<th class="hide">ID</th>
 									<th>Num. empleado</th>
 									<th>Nombre</th>
 									<th>Cuenta</th>
@@ -94,7 +93,6 @@ img#company-logo{
 								<tbody>
 									@foreach($asistencias as $asistencia)
 									<tr>
-										<td class="hide">{{$asistencia->pago->usuarios->id}}</td>
 										<td>{{$asistencia->pago->usuarios->num_empleado}}</td>
 										<td>{{$asistencia->pago->usuarios->nombre.' '.$asistencia->pago->usuarios->apellido_paterno.' '.$asistencia->pago->usuarios->apellido_materno}}</td>
 										<td>{{$asistencia->pago->usuarios->num_cuenta}}</td>
