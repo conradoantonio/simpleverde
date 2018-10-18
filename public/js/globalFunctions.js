@@ -181,7 +181,9 @@ $(function() {
     $('div.modal').on('hidden.bs.modal', function (e) {
         $(this).find('div.form-group').removeClass('has-error');
         $(this).find("input.form-control, textarea.form-control").val('');
-        $(this).find("select.form-control").val(0);
+        $(this).find("select").val(0);
+        $(this).find("select.select2").val(0).trigger('change');
+        $(this).find('div.select2-container').removeClass("select-error");
     });
 
     //Send a request for a single delete

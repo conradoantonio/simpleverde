@@ -50,4 +50,20 @@ class Empleado extends Model
     {
         return $this->hasOne('App\Aditamento', 'empleado_id');
     }
+
+    /**
+     * Obtiene las posibles deducciones del empleado.
+     */
+    public function deducciones()
+    {
+        return $this->hasMany('App\Deduccion', 'empleado_id');
+    }
+
+    /**
+     * Obtiene las posibles retenciones del empleado.
+     */
+    public function retenciones()
+    {
+        return $this->hasMany('App\Retencion', 'empleado_id');
+    }
 }

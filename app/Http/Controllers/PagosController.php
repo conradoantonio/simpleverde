@@ -4,17 +4,20 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
+use DB;
+use PDF;
+use Excel, File;
+
 use App\Pago;
 use App\Empresa;
 use App\Empleado;
 use App\Asistencia;
 use App\UsuarioPago;
 use App\EmpresaServicio;
-use DB;
-use PDF;
-use Excel, File;
+
+use App\Http\Requests;
+use App\Http\Controllers\Controller;
+
 
 class PagosController extends Controller
 {
@@ -25,7 +28,7 @@ class PagosController extends Controller
 	 */
 	public function index(Request $req)
 	{
-		if (auth()->check()) {
+        if (auth()->user()->privilegios && auth()->user()->privilegios->asistencias == 1) {
 			$menu = $title = "Lista de asistencia";
 			$pagos = Pago::where('status', '!=', '0')->get();
 
@@ -36,7 +39,7 @@ class PagosController extends Controller
 			}
 			return view('pagos.pagos', ['pagos' => $pagos, 'menu' => $menu, 'title' => $title]);
 		} else {
-			return redirect()->to('/');
+			return view('errors.503');
 		}
 	}
 
@@ -47,7 +50,7 @@ class PagosController extends Controller
 	 */
 	public function historial()
 	{
-		if (auth()->check()) {
+        if (auth()->user()->privilegios && auth()->user()->privilegios->historial_asistencias == 1) {
 			$menu = $title = "Historial";
 			$pagos = Pago::where('status', '0')->get();
 
@@ -84,7 +87,7 @@ class PagosController extends Controller
 					$asistencia = new Asistencia();
 					$asistencia->usuario_pago_id = $usuarioPago->id;
 					$asistencia->dia = $d;
-					$asistencia->status = '';
+					$asistencia->status = '-';
 					$asistencia->save();
 				}
 			}
@@ -110,9 +113,9 @@ class PagosController extends Controller
 		$endTime = strtotime( $pago->fecha_fin );
 		$days_ago = date('d', strtotime('-3 days'));
 		
-		$date1=date_create(date('Y-m-d'));
-		$date2=date_create(date('Y-m-d', strtotime( "-3 days")));
-		$diff=date_diff($date1,$date2);
+		$date1 = date_create(date('Y-m-d'));
+		$date2 = date_create(date('Y-m-d', strtotime( "-3 days")));
+		$diff = date_diff($date1,$date2);
 
 		// Loop between timestamps, 24 hours at a time
 
@@ -168,7 +171,13 @@ class PagosController extends Controller
 		$listas = Pago::whereIn('id', $req->checking);
 		if ($listas->get()) {
 			foreach ($listas->get() as $key => $lista) {
-				foreach ($lista->PagoUsuarios as $pago_usuario){
+				foreach ($lista->PagoUsuarios as $pago_usuario) {
+					//Desvincula las deducciones en caso de ser necesario
+					if ( count ($pago_usuario->deducciones_detalles ) ) {
+						foreach ($pago_usuario->deducciones_detalles as $detalle) {
+							$detalle->update(['usuario_pago_id' => null, 'status' => 0]);
+						}
+					}
 					$pago_usuario->asistencia()->delete();//Elimina las asistencias
 				}
 				$lista->PagoUsuarios()->delete();//Elimina los PagoUsuarios
@@ -203,7 +212,7 @@ class PagosController extends Controller
 				$asistencia = new Asistencia();
 				$asistencia->usuario_pago_id = $usuarioPago->id;
 				$asistencia->dia = $d;
-				$asistencia->status = '';
+				$asistencia->status = '-';
 				$asistencia->save();
 			}
 		}
@@ -217,7 +226,19 @@ class PagosController extends Controller
 	 */
 	public function eliminar_empleados_lista(Request $req)
 	{
-		$usuario_pagos = UsuarioPago::whereIn('id', $req->checking)->delete();
+		$usuario_pagos = UsuarioPago::whereIn('id', $req->checking)->get();
+
+		if ( count( $usuario_pagos ) ) {
+			foreach ($usuario_pagos as $pago) {
+				if ( count ($pago->deducciones_detalles ) ) {
+					foreach ($pago->deducciones_detalles as $detalle) {
+						$detalle->update(['usuario_pago_id' => null, 'status' => 0]);
+					}
+				}
+			}
+
+			$pago->delete();
+		}
 		$asistencias = Asistencia::whereIn('usuario_pago_id', $req->checking)->delete();
 
 		if ($asistencias && $usuario_pagos){
@@ -251,16 +272,22 @@ class PagosController extends Controller
 
 		$pago_actualizado = DB::table('pagos')->where('id', $id)->update(['status' => 0]);//Se marca el pago como pagado
 
-		return view('pagos.pagar', ['pago' => $pago,'menu' => $menu, 'title' => $title, 'asistencias' => $asistencias, 'pago_id' => $id]);
+		return view('pagos.pagar', ['pago' => $pago, 'menu' => $menu, 'title' => $title, 'asistencias' => $asistencias, 'pago_id' => $id]);
 	}
 
-	public function formulario() {
-		$menu = "Lista de asistencia";
-		$title = "Formulario de asistencia";
-		$empresas = Empresa::where('status',1)->get();
-		$trabajadores = Empleado::where('status',1)->get();
+	public function formulario() 
+	{
+        if (auth()->user()->privilegios && auth()->user()->privilegios->asistencias == 1) {
 
-		return view('pagos.formulario', ['empresas' => $empresas, 'trabajadores' => $trabajadores, 'menu' => $menu, 'title' => $title]);
+			$menu = "Lista de asistencia";
+			$title = "Formulario de asistencia";
+			$empresas = Empresa::where('status',1)->get();
+			$trabajadores = Empleado::where('status',1)->get();
+
+			return view('pagos.formulario', ['empresas' => $empresas, 'trabajadores' => $trabajadores, 'menu' => $menu, 'title' => $title]);
+		} else {
+			return view('errors.503');
+		}
 	}
 
 	public function save(Request $req) {
@@ -370,18 +397,20 @@ class PagosController extends Controller
 				'Dias festivos' => $asistencia->festivo,
 				'Turnos diurnos' => $asistencia->diurno,
 				'Turnos nocturnos' => $asistencia->nocturno,
-				'Empresa ' => $pago->empresa->nombre
+				'Empresa ' => $pago->empresa->nombre,
+				'Deducciones' => number_format($asistencia->pago->deducciones_detalles->sum('cantidad'),2),
+				'Notas' => $asistencia->pago->notas
 			];
 		}
 
         Excel::create("Resumen de asistencias del $intervalo", function($excel) use($array) {
             $excel->sheet('Hoja 1', function($sheet) use($array) {
-                $sheet->cells('A:J', function($cells) {
+                $sheet->cells('A:L', function($cells) {
                     $cells->setAlignment('center');
                     $cells->setValignment('center');
                 });
 
-                $sheet->cells('A1:J1', function($cells) {
+                $sheet->cells('A1:L1', function($cells) {
                     $cells->setFontWeight('bold');
                 });
 

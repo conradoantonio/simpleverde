@@ -18,12 +18,11 @@ $(function(){
     var form = '';
     var btn_form = $(".save");
 
-
-
-    $(".not-empty").blur(function() {
-        if ( $(this).val() || $(this).val() != 0 ) {
+    $(".not-empty").on('blur change' , function() {
+        if ( $(this).val() && $(this).val() != 0 ) {
             if ($(this).hasClass('select2')) {//Si es un select2 se remueve un error especial
-                $(this).parent().children('div.select2').children('ul.select2-choices').removeClass("select-error");
+                //$(this).parent().children('div.select2').children('ul.select2-choices').removeClass("select-error");
+                $(this).parent().children('div.select2-container').removeClass("select-error");
             } else if($(this).hasClass('selectpicker')) {
                 $(this).parent().children('button.dropdown-toggle').removeClass("select-error");
             } else {
@@ -32,6 +31,8 @@ $(function(){
         } else {
             if ($(this).hasClass('select2')) {//Si es un select2 se agrega un error especial
                 $(this).parent().children('div.select2').children('ul.select2-choices').addClass("select-error");
+                $(this).parent().children('div.select2-container').addClass("select-error");
+
             } else if ($(this).hasClass('selectpicker')) {//Si es un selectpicker se agrega un error especial
                 $(this).parent().children('button.dropdown-toggle').addClass("select-error");
             } else {
@@ -80,6 +81,7 @@ $(function(){
                 if ( !$(this).val() || $(this).val() == 0 ) {//If empty or nothing selected
                     if ($(this).hasClass('select2')) {
                         $(this).parent().children('div.select2').children('ul.select2-choices').addClass("select-error");
+                        $(this).parent().children('div.select2-container').addClass("select-error");
                     } else if ($(this).hasClass('selectpicker')) {//Si es un selectpicker se agrega un error especial
                         $(this).parent().children('button.dropdown-toggle').addClass("select-error");
                     } else {
@@ -89,7 +91,9 @@ $(function(){
                     msgError = msgError +"<li>"+$(this).data('msg')+": Campo vacio</li>";
                 } else {
                     if ($(this).hasClass('select2')) {
-                        $(this).parent().children('div.select2').children('ul.select2-choices').removeClass("select-error");
+                        $(this).parent().children('div.select2-container').removeClass("select-error");
+                        //$(this).parent().children('button.dropdown-toggle').removeClass("select-error");
+                        //$(this).parent().children('div.select2').children('ul.select2-choices').removeClass("select-error");
                     } else if ($(this).hasClass('selectpicker')) {
                         $(this).parent().children('button.dropdown-toggle').removeClass("select-error");
                     } else {

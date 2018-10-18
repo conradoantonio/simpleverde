@@ -1,5 +1,4 @@
 base_url = $('#token').attr('base-url');//Extrae la base url del input token de la vista
-console.info(base_url);
 function eliminarListas(checking) {
     url = base_url.concat('/nominas/eliminar_listas');
     $.ajax({

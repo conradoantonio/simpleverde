@@ -46,14 +46,16 @@
                     <td class="hide"><span>{{$empresa->tipo_pago}}</span></td>
                     <td class="hide"><span>{{$empresa->status}}</span></td>
                     <td>
-                        <button type="button" class="btn btn-info editar_empresa">Editar</button>
+                        @if ( $modify )
+                            <button type="button" class="btn btn-info editar_empresa">Editar</button>
+                            <button type="button" change-to="{{$empresa->status == 1 ? 0 : 1}}" class="btn btn-danger {{$empresa->status == 1 ? 'disable-row' : 'enable-row'}}">{{$empresa->status == 1 ? 'Baja' : 'Reactivar'}}</button>
+                            <button type="button" class="btn btn-warning ver_servicios">
+                                <i class="fa fa-spinner fa-spin" style="display: none"></i>
+                                Servicios
+                            </button>
+                        @endif
                         <button type="button" class="btn btn-success detalle_empresa">Ver</button>
-                        <button type="button" class="btn btn-warning ver_servicios">
-                            <i class="fa fa-spinner fa-spin" style="display: none"></i>
-                            Servicios
-                        </button>
                         <a href="{{url("empresas/exportar/individual/1/$empresa->id")}}"><button type="button" class="btn btn-default" data-dismiss="modal"> Exportar</button></a>
-                        <button type="button" change-to="{{$empresa->status == 1 ? 0 : 1}}" class="btn btn-danger {{$empresa->status == 1 ? 'disable-row' : 'enable-row'}}">{{$empresa->status == 1 ? 'Baja' : 'Reactivar'}}</button>
                     </td>
                 </tr>
             @endforeach

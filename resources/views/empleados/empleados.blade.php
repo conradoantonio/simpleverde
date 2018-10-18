@@ -1,7 +1,6 @@
 @extends('admin.main')
 
 @section('content')
-<link rel="stylesheet" href="{{ asset('plugins/bootstrap-select2/select2.css')}}"  type="text/css" media="screen"/>
 <link rel="stylesheet" href="{{ asset('plugins/jquery-datatable/css/jquery.dataTables.css')}}"  type="text/css" media="screen"/>
 <style>
 textarea {
@@ -29,16 +28,23 @@ input:-webkit-autofill {
 
     <h2>Lista de empleados</h2>
 
+    @include('empleados.modal')
+
     <div class="row-fluid" style="display: none">
         <div class="span12">
             <div class="grid simple ">
                 <div class="grid-title">
                     <h4>Opciones <span class="semi-bold">adicionales</span></h4>
                     <div>
-                        <a href="{{url("empleados/exportar/general/{$status}")}}"><button type="button" class="btn btn-info {{count($empleados) ? '' : 'hide'}}" id="exportar_empleados_excel"><i class="fa fa-download" aria-hidden="true"></i> Exportar empleados</button></a>
-                        <button type="button" class="btn btn-danger {{count($empleados) ? '' : 'hide'}}" id="dar_baja_empleados"><i class="fa {{$status == 1 ? 'fa-trash' : 'fa-undo'}}" aria-hidden="true"></i> {{$status == 1 ? 'Dar de baja' : 'Reactivar empleados'}}</button>
-                        @if($status == 1)
-                            <a href="{{url('empleados/formulario')}}"><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#formulario_empleado" id="nuevo_empleado"><i class="fa fa-plus" aria-hidden="true"></i> Nuevo empleado</button></a>
+                        <button type="button" data-redirect="{{url("empleados/exportar/general/{$status}")}}" class="btn btn-info export_excel {{count($empleados) ? '' : 'hide'}}" id="exportar_empleados_excel"><i class="fa fa-download" aria-hidden="true"></i> Exportar empleados</button>
+                        <button type="button" data-redirect="{{url("deducciones/excel/export/general/{$status}")}}" class="btn btn-primary export_excel {{count($empleados) ? '' : 'hide'}}" id="exportar_deducciones"><i class="fa fa-download" aria-hidden="true"></i> Exportar deducciones</button>
+                        <button type="button" data-redirect="{{url("retenciones/excel/export/general/{$status}")}}" class="btn btn-warning export_excel {{count($empleados) ? '' : 'hide'}}" id="exportar_retenciones"><i class="fa fa-download" aria-hidden="true"></i> Exportar retenciones</button>
+                        @if($modify == 1)
+                            <button type="button" class="btn btn-danger {{count($empleados) ? '' : 'hide'}}" id="dar_baja_empleados"><i class="fa {{$status == 1 ? 'fa-trash' : 'fa-undo'}}" aria-hidden="true"></i> {{$status == 1 ? 'Dar de baja' : 'Reactivar empleados'}}</button>
+                        @endif
+
+                        @if($status == 1 && $modify == 1)
+                            <a href="{{url('empleados/formulario')}}"><button type="button" class="btn btn-success" data-toggle="modal" data-target="#formulario_empleado" id="nuevo_empleado"><i class="fa fa-plus" aria-hidden="true"></i> Nuevo empleado</button></a>
                         @endif
                     </div>
                     <div class="grid-body">
@@ -69,6 +75,24 @@ $(function(){
     global_status = <?php echo $status;?>;
     swal_msg = global_status == 1 ? 'dar de baja' : 'reactivar';
     activar = global_status == 1 ? 0 : 1;
+
+    $(".select2").select2();
+
+    $( "input[name='fecha_inicio'" ).datepicker({
+        autoclose: true,
+        todayHighlight: true,
+        format: "yyyy-mm-dd",
+    }).on( "changeDate", function(e) {
+        $( "input[name='fecha_fin']" ).setStartDate = e.date;
+    });
+
+    $( "input[name='fecha_fin']" ).datepicker({
+        autoclose: true,
+        todayHighlight: true,
+        format: "yyyy-mm-dd",
+    }).on( "changeDate", function(e) {
+        $( "input[name='fecha_inicio'" ).setEndDate = e.date;
+    });
 })
 
 $('#formulario_empleado').on('hidden.bs.modal', function (e) {
@@ -125,6 +149,28 @@ $('body').delegate('.baja_empleado','click', function() {
     function() {
         bajaEmpleado(id, activar);
     });
+});
+
+$('body').delegate('.agregar_deduccion','click', function() {
+    var id = $(this).parent().parent().attr('id');
+
+    $("form#form-deducciones input[name='empleado_id']").val(id);
+    
+    $('div#md-deducciones').modal();
+});
+
+$('body').delegate('.agregar_retencion','click', function() {
+    var id = $(this).parent().parent().attr('id');
+
+    $("form#form-retenciones input[name='empleado_id']").val(id);
+
+    $('div#md-retenciones').modal();
+});
+
+$('body').delegate('.export_excel','click', function() {
+    var redirect = $(this).data('redirect');
+
+    window.location.href = redirect;
 });
 
 </script>

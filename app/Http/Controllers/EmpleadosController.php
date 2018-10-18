@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 
 use DB;
 use Excel;
+use App\Empresa;
 use App\Empleado;
 use App\Uniforme;
 use App\Aditamento;
@@ -22,14 +23,20 @@ class EmpleadosController extends Controller
      */
     public function index(Request $req)
     {
-        $title = $menu = "Empleados (Activos)";
-        $status = 1;
-        $empleados = Empleado::where('status', $status)->get();
-        
-        if ($req->ajax()) {
-            return view('empleados.tabla', ['empleados' => $empleados, 'status' => $status]);
+        if (auth()->user()->privilegios && auth()->user()->privilegios->emp_act == 1) {
+            $modify = auth()->user()->privilegios->emp_act_mod == 1 ? 1 : 0;
+            $title = $menu = "Empleados (Activos)";
+            $status = 1;
+            $empleados = Empleado::where('status', $status)->get();
+            $empresas = Empresa::where('status', 1)->get();
+
+            if ($req->ajax()) {
+                return view('empleados.tabla', compact(['empleados', 'status', 'modify']));
+            }
+            return view('empleados.empleados', compact(['empleados', 'status', 'modify', 'empresas', 'menu', 'title']));
+        } else {
+            return view('errors.503');
         }
-        return view('empleados.empleados', ['empleados' => $empleados, 'status' => $status, 'menu' => $menu, 'title' => $title]);
     }
 
     /**
@@ -39,14 +46,20 @@ class EmpleadosController extends Controller
      */
     public function inactivos(Request $req)
     {
-        $title = $menu = "Empleados (Inactivos)";
-        $status = 0;
-        $empleados = Empleado::where('status', $status)->get();
-        
-        if ($req->ajax()) {
-            return view('empleados.tabla', ['empleados' => $empleados, 'status' => $status]);
+        if (auth()->user()->privilegios && auth()->user()->privilegios->emp_baj == 1) {
+            $modify = auth()->user()->privilegios->emp_baj_mod == 1 ? 1 : 0;
+            $title = $menu = "Empleados (Inactivos)";
+            $status = 0;
+            $empleados = Empleado::where('status', $status)->get();
+            $empresas = Empresa::where('status', 1)->get();
+
+            if ($req->ajax()) {
+                return view('empleados.tabla', compact(['empleados', 'status', 'modify']));
+            }
+            return view('empleados.empleados', compact(['empleados', 'status', 'modify', 'empresas', 'menu', 'title']));
+        } else {
+            return view('errors.503');
         }
-        return view('empleados.empleados', ['empleados' => $empleados, 'status' => $status, 'menu' => $menu, 'title' => $title]);
     }
 
     /**
@@ -56,15 +69,27 @@ class EmpleadosController extends Controller
      */
     public function cargar_formulario($id = 0)
     {
-        $title = "Formulario de empleados";
-        $menu = "Empleados";
-        $empleado = null;
-        $editable = 1;
-        if ($id) {
-            $empleado = Empleado::find($id);
-            $empleado->documentacion = $empleado->documentacion;
+        if (auth()->user()->privilegios && (auth()->user()->privilegios->emp_baj == 1 || auth()->user()->privilegios->emp_act == 1)) {
+            $title = "Formulario de empleados";
+            $modify = 0;
+            $menu = "Empleados (Activos)";
+            $empleado = null;
+            $editable = 1;
+            if ($id) {
+                $empleado = Empleado::find($id);
+                if ($empleado) {
+                    $menu = $empleado->status == 0 ? "Empleados (Inactivos)" : "Empleados (Activos)";
+                    $modify = (($empleado->status == 1 && auth()->user()->privilegios->emp_act_mod == 1) || ($empleado->status == 0 && auth()->user()->privilegios->emp_baj_mod == 1)) ? 1 : 0;
+                    if ($modify == 0) { return view('errors.503');}
+                } else {
+                    if (!(auth()->user()->privilegios->emp_act_mod == 1)) { return view('errors.503');}
+                }
+            }
+            if (!(auth()->user()->privilegios->emp_act_mod == 1)) { return view('errors.503');}
+            return view('empleados.formulario', compact(['empleado', 'editable', 'modify', 'menu', 'title']));
+        } else {
+            return view('errors.503');
         }
-        return view('empleados.formulario', ['empleado' => $empleado, 'editable' => $editable, 'menu' => $menu, 'title' => $title]);
     }
 
     /**
@@ -74,18 +99,21 @@ class EmpleadosController extends Controller
      */
     public function detalle_empleado($id)
     {
-        $title = "Detalle de empleado";
-        $menu = "Empleados";
-        $empleado = null;
-        $editable = 0;
-        if ($id) {
-            $empleado = Empleado::find($id);
-            $empleado->documentacion = $empleado->documentacion;
+        if (auth()->user()->privilegios && (auth()->user()->privilegios->emp_baj == 1 || auth()->user()->privilegios->emp_act == 1)) {
+            $title = "Detalle de empleado";
+            $menu = "Empleados";
+            $empleado = null;
+            $editable = 0;
+            if ($id) {
+                $empleado = Empleado::find($id);
+                $empleado->documentacion = $empleado->documentacion;
+            } else {
+                return view('empleados.formulario', ['empleado' => $empleado, 'editable' => 1, 'menu' => $menu, 'title' => $title]);//Se regresa la vista para dar de alta un formulario
+            }
+            return view('empleados.formulario', ['empleado' => $empleado, 'editable' => $editable, 'menu' => $menu, 'title' => $title]);
         } else {
-            return view('empleados.formulario', ['empleado' => $empleado, 'editable' => 1, 'menu' => $menu, 'title' => $title]);//Se regresa la vista para dar de alta un formulario
+            return view('errors.503');
         }
-
-        return view('empleados.formulario', ['empleado' => $empleado, 'editable' => $editable, 'menu' => $menu, 'title' => $title]);
     }
 
     /**
@@ -147,6 +175,7 @@ class EmpleadosController extends Controller
         $documentacion->calendario = $req->calendario ? 1 : 0;
         $documentacion->formato_datos_personales = $req->formato_datos_personales ? 1 : 0;
         $documentacion->solicitud_autorizacion_consulta = $req->solicitud_autorizacion_consulta ? 1 : 0;
+        $documentacion->cartilla_militar = $req->cartilla_militar ? 1 : 0;
         $documentacion->licencia_conduccion = $req->licencia_conduccion;
 
         $documentacion->save();
@@ -246,6 +275,7 @@ class EmpleadosController extends Controller
             $documentacion->calendario = $req->calendario ? 1 : 0;
             $documentacion->formato_datos_personales = $req->formato_datos_personales ? 1 : 0;
             $documentacion->solicitud_autorizacion_consulta = $req->solicitud_autorizacion_consulta ? 1 : 0;
+            $documentacion->cartilla_militar = $req->cartilla_militar ? 1 : 0;
             $documentacion->licencia_conduccion = $req->licencia_conduccion;
 
             $documentacion->save();
@@ -347,7 +377,8 @@ class EmpleadosController extends Controller
             IF(documentacion.calendario = 1, 'Si', 'No') as 'Calendario',
             IF(documentacion.formato_datos_personales = 1, 'Si', 'No') as 'Formato de datos personales',
             IF(documentacion.solicitud_autorizacion_consulta = 1, 'Si', 'No') as 'Solicitud de autorización de consulta',
-            IF(documentacion.licencia_conduccion = 1, 'Si', 'No') as 'Licencia de conducir',
+            IF(documentacion.cartilla_militar = 1, 'Si', 'No') as 'Cartilla militar',
+            IF(ISNULL(documentacion.licencia_conduccion),'',documentacion.licencia_conduccion) as 'Licencia de conducir',
             IF(uniformes.playera_polo = 1, 'Si', 'No') as 'Playera polo',
             IF(uniformes.camisa = 1, 'Si', 'No') as 'Camisa',
             IF(uniformes.pantalones = 1, 'Si', 'No') as 'Pantalones',
@@ -385,12 +416,12 @@ class EmpleadosController extends Controller
 
         Excel::create($nombre_excel, function($excel) use($empleados) {
             $excel->sheet('Hoja 1', function($sheet) use($empleados) {
-                $sheet->cells('A:BO', function($cells) {
+                $sheet->cells('A:BP', function($cells) {
                     $cells->setAlignment('center');
                     $cells->setValignment('center');
                 });
                 
-                $sheet->cells('A1:BO1', function($cells) {
+                $sheet->cells('A1:BP1', function($cells) {
                     $cells->setFontWeight('bold');
                 });
 

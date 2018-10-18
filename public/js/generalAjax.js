@@ -102,7 +102,7 @@ function ajaxSimple(config) {
             } else if (config.refresh == 'galery') {
                 refreshGalery(data.url, config.container_id);
             } else if(config.callback) {
-                window[config.callback](data);
+                window[config.callback](data, config);
             } else if(config.redirect) {
                 setTimeout( function() {
                     window.location.href = data.url;
@@ -208,7 +208,7 @@ function fill_text(response, modal_id) {
 
 function displayAjaxError(xhr, status, error) {
     $('div.modal').modal('hide');
-    swal.close();
+    //swal.close();
     if (/^[\],:{}\s]*$/.test(xhr.responseText.replace(/\\["\\\/bfnrtu]/g, '@').replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
         display = JSON.parse(xhr.responseText).msg;
     } else {
@@ -216,7 +216,7 @@ function displayAjaxError(xhr, status, error) {
     }
     swal({
         title: "<small>¡Error!</small>",
-        text: "Se encontró un problema con el servidor, por favor, trate nuevamente.<br><span>" + display + "</span><br><span style='color:#F8BB86'>\nError: " + xhr.status + " (" + error + ") "+"</span>",
+        text: "Ha ocurrido un error.<br><span>" + display + "</span><br><span style='color:#F8BB86'>\nError: " + xhr.status + " (" + error + ") "+"</span>",
         type: 'error',
         html: true
     });

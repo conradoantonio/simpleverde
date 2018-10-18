@@ -70,7 +70,7 @@ img#company-logo{
 								</ul>
 							</div>
 							<div class="col-md-6 visible-lg visible-md hidden-sm hidden-xs text-right" style="float: right;">
-								<img src="{{asset('img/logo_mini_simpleverde.png')}}" class="" id="company-logo" alt="company-logo">
+								<img src="{{asset('img/company_logo.png')}}" class="" id="company-logo" alt="company-logo">
 							</div>
 						</div>
 					</div>
@@ -78,7 +78,6 @@ img#company-logo{
                         <div class="table-responsive" id="div_tabla_empresas">
                             <table class="table table-bordered table-responsive" id="nomina">
 								<thead>
-									<th class="hide">ID</th>
 									<th>Num. empleado</th>
 									<th>Nombre</th>
 									<th>Cuenta</th>
@@ -88,13 +87,13 @@ img#company-logo{
 									<th>Turno nocturno</th>
 									<th>Dias a pagar</th>
 									<th>Empresa</th>
+									<th>Deducciones</th>
 									<th>Subtotal</th>
 									<th>Notas</th>
 								</thead>
 								<tbody>
 									@foreach($asistencias as $asistencia)
 									<tr>
-										<td class="hide">{{$asistencia->pago->usuarios->id}}</td>
 										<td>{{$asistencia->pago->usuarios->num_empleado}}</td>
 										<td>{{$asistencia->pago->usuarios->nombre.' '.$asistencia->pago->usuarios->apellido_paterno.' '.$asistencia->pago->usuarios->apellido_materno}}</td>
 										<td>{{$asistencia->pago->usuarios->num_cuenta}}</td>
@@ -104,6 +103,7 @@ img#company-logo{
 										<td>{{$asistencia->nocturno}}</td>
 										<td>{{$asistencia->total}}</td>
 										<td>{{$pago->empresa->nombre}}</td>
+										<td>${{number_format($asistencia->pago->deducciones_detalles->sum('cantidad'),2)}}</td>
 										<td>${{number_format($asistencia->pago->pago->servicio->sueldo_diario_guardia*$asistencia->total,2)}}</td>
 										<td>{{$asistencia->pago->notas}}</td>
 									</tr>

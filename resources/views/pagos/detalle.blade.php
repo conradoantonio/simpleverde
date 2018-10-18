@@ -41,7 +41,7 @@ img#company-logo{
 }
 </style>
 <div class="text-center" style="margin: 20px;">
-	@include('pagos.modal_nuevo_empleado')
+	@include('pagos.modal')
     @if(session('msg'))
     <div class="alert {{session('class')}}">
         {{session('msg')}}
@@ -87,7 +87,7 @@ img#company-logo{
 								</ul>
 							</div>
 							<div class="col-md-6 visible-lg visible-md hidden-sm hidden-xs text-right" style="float: right;">
-								<img src="{{asset('img/logo_mini_simpleverde.png')}}" class="" id="company-logo" alt="company-logo">
+								<img src="{{asset('img/company_logo.png')}}" class="" id="company-logo" alt="company-logo">
 							</div>
 						</div>
 					</div>
@@ -128,6 +128,97 @@ img#company-logo{
 			$(this).css('background','black')
 		}
 	})*/
+
+	/*Empiezan los métodos para pagar la retención*/
+    $('body').delegate('.pagar_deduccion','click', function() {
+		empleado_id = $(this).data('empleado_id');
+		usuario_pago_id = $(this).data('usuario_pago_id');
+
+		config = {
+            'route'           : "{{url('deducciones/mostrar-detalles')}}",
+            'empleado_id'     : empleado_id,
+            'usuario_pago_id' : usuario_pago_id,
+            'callback'        : 'mostrar_deducciones_empleado',
+        }
+        loadingMessage('Cargando deducciones del empleado...');
+        ajaxSimple(config);
+	});
+
+	//Checa qué deducciones están marcadas para pagar
+    $('body').delegate('#adjuntar-deduccion', 'click', function() {
+        var detalles_ids = [];
+        $("input.checkDeduccion").each(function() {
+            if ($(this).is(':checked')) {
+                detalles_ids.push($(this).parent().parent().siblings("td:nth-child(1)").text());
+            }
+        });
+        console.log(detalles_ids)
+        if (detalles_ids.length > 0) {
+
+			var usuario_pago_id = $('input[name="usuario_pago_id"').val();
+
+			config = {
+	            'route'           : "{{url('deducciones/pagar')}}",
+	            'ids'             : detalles_ids,
+	            'usuario_pago_id' : usuario_pago_id,
+	            'redirect_to'     : window.location.href+'/1',
+	            'refresh'         : 'table',
+	            'table_id'        : 'nomina'
+	        }
+	        loadingMessage('Cargando deducciones del empleado...');
+	        ajaxSimple(config);
+        } else {
+			swal('Error', 'Necesita seleccionar al menos una retención a pagar', 'error');
+        }
+
+
+        //$('.delete-rows').attr('disabled', detalles_ids.length > 0 ? false : true);
+    });
+
+	function mostrar_deducciones_empleado(data, config) {
+		var deducs = data.deducciones;
+		$('div.deduccion-detalles tbody').children().remove();
+		//console.log(data);
+		if ( deducs.length > 0 ) {
+			//Deducción detalle ID
+            //ID deducción
+            //Total a pagar
+            //Cantidad
+            //Acción
+            for (var key in deducs) {
+                if (deducs.hasOwnProperty(key)) {
+                	detalles = deducs[key].detalles;
+                	for (var key_d in detalles) {
+                		if (detalles.hasOwnProperty(key_d)) {
+                			if (detalles[key_d].status == 0) {
+	                			$('div.deduccion-detalles tbody').append(
+									"<tr>"+
+										"<td class='hide'>"+detalles[key_d].id+"</td>"+
+										"<td>"+deducs[key].id+"</td>"+
+										"<td>"+deducs[key].total+"</td>"+
+										"<td>"+detalles[key_d].cantidad+"</td>"+
+										"<td class='small-cell v-align-middle'>"+
+					                        "<div class='checkbox check-success'>"+
+					                        	"<input id='checkbox_d"+detalles[key_d].id+"' type='checkbox' class='checkDeduccion' value='1'>"+
+					                        	"<label for='checkbox_d"+detalles[key_d].id+"'></label>"+
+					                        "</div>"+
+										"</td>"+
+									"</tr>"
+								);
+	                		}
+                		}//Detalle for
+                	}
+                }
+            }//Deduccion for
+            //$('.').show();
+		} else {
+            $('div.deduccion-detalles tbody').append("<tr><td colspan='5'>No hay retenciones pendientes por cobrar</td></tr>");
+		}
+
+		$('#form-pagar-deduccion input[name="usuario_pago_id"').val(config.usuario_pago_id);
+
+		$('#modal-pagar-deduccion').modal()
+	}
 
 	/*Se agregan las clases necesarias para poder editar las celdas de la tabla y tomar asistencias*/
 	$(function(){

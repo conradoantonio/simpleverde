@@ -26,9 +26,9 @@ input:-webkit-autofill {
 }
 </style>
 <div class="text-center" style="margin: 20px;">
-
+    
     @include('empresas.form_empresa')
-
+    
     <h2>Lista de clientes (empresas)</h2>
 
     <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="titulo_tipo_servicio" id="servicio_dialogo">
@@ -124,9 +124,12 @@ input:-webkit-autofill {
                         <a href="{{url("empresas/exportar/general/{$status}")}}">
                             <button type="button" class="btn btn-info {{count($empresas) ? '' : 'hide'}}" id="exportar_empresas_excel"><i class="fa fa-download" aria-hidden="true"></i> Exportar clientes</button>
                         </a>
-                        <button type="button" class="btn btn-danger disable-rows enable-rows {{count($empresas) ? '' : 'hide'}}"><i class="fa {{$status == 1 ? 'fa-trash' : 'fa-undo'}}" aria-hidden="true"></i> {{$status == 1 ? 'Dar de baja' : 'Reactivar empresas'}}</button>
-                        @if($status == 1)
-                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#formulario_empresa" id="nuevo_empresa"><i class="fa fa-plus" aria-hidden="true"></i> Nueva empresa</button>
+                        @if ($modify)
+                            <button type="button" class="btn btn-danger disable-rows enable-rows {{count($empresas) ? '' : 'hide'}}"><i class="fa {{$status == 1 ? 'fa-trash' : 'fa-undo'}}" aria-hidden="true"></i> {{$status == 1 ? 'Dar de baja' : 'Reactivar empresas'}}</button>
+                        @endif
+                            
+                        @if($status == 1 && $modify)
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#formulario_empresa" id="nueva_empresa"><i class="fa fa-plus" aria-hidden="true"></i> Nueva empresa</button>
                         @endif
                     </div>
                     <div class="grid-body">

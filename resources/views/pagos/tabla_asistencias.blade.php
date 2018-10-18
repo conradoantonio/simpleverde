@@ -43,6 +43,8 @@
 			@endif
 		@endforeach
 		<th>Notas</th>
+		<th>Deducción a pagar</th>
+		<th>Acciones</th>
 	</thead>
 	<tbody>
 		@foreach( $pago->PagoUsuarios as $trabajador )
@@ -68,6 +70,10 @@
 					@endforeach
 				@endif
 				<td data-notes="1"><input type="text" name="notas" value="{{$trabajador->notas?$trabajador->notas:''}}"></td>
+				<td>${{$trabajador->deducciones_detalles->sum('cantidad')}}</td>
+				<td>
+                    <button type="button" class="btn btn-primary pagar_deduccion" data-empleado_id="{{$trabajador->usuarios->id}}" data-usuario_pago_id={{$trabajador->id}} data-toggle="tooltip" data-placement="top" data-title="Pagar deducción"><i class="fa fa-money"></i></button>
+				</td>
 			</tr>
 		@endforeach
 	</tbody>

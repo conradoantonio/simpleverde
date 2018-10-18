@@ -29,7 +29,7 @@
 			<h6>Sueldo: <strong>${{$pago->servicio->sueldo}}</strong></h6>
 		</div>
 		<div class="" style="float: right;">
-			<img src="{{asset('img/logo_mini_simpleverde.png')}}" alt="company-logo">
+			<img src="{{asset('img/company_logo.png')}}" alt="company-logo">
 		</div>
 	</div>
 	<br>
