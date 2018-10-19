@@ -351,6 +351,8 @@
         <!-- END CUSTOM CODE -->
 
         <!-- BEGIN CORE JS FRAMEWORK-->
+        <script src="{{ asset('js/tabs_accordian.js') }}"></script>
+
         <!--<script src="{{ asset('plugins/jquery-ui/jquery-ui-1.10.1.custom.min.js') }}" type="text/javascript"></script>-->
         <script src="{{ asset('plugins/boostrapv3/js/bootstrap.min.js') }}" type="text/javascript"></script>
         <script src="{{ asset('plugins/breakpoints.js') }}" type="text/javascript"></script>
