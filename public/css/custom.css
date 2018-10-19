@@ -66,3 +66,9 @@ label.required:after{
 	content:"*";
 	color:red;
 }
+/*Error style for select2*/
+.select-error{
+	border-color: #A94442;
+	border-style: solid;
+	border-width: 1px;
+}
