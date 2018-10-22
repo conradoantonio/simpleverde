@@ -309,7 +309,7 @@ class EmpleadosController extends Controller
 
             $aditamento->save();
 
-            $url = url($empleado->status == 1 ? 'empleados' : 'empleados/inactivas');
+            $url = url($empleado->status == 1 ? 'empleados' : 'empleados/inactivos');
             return response(['msg' => 'Empleado actualizado correctamente', 'status' => 'success', 'url' => $url], 200);
         }
         return response(['msg' => 'Error al actualizar el cliente', 'status' => 'error'], 404);
