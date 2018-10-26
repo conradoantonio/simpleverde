@@ -149,7 +149,7 @@ class PagosController extends Controller
 	    #if (($today >= $inicio_d) && ($today < $fin_d)){
 			foreach ($days as &$day) {
 				#echo $dia."<br>";
-				if ( $day['num'] == $dia[0] || $day['num'] == $dia[1] || $day['num'] == $dia[2] || $day['num'] == date('d')/* || $day['num'] == date('d', strtotime($today . ' +1 day'))*/ ){
+				if ( $day['num'] == $dia[0] || $day['num'] == $dia[1] || $day['num'] == $dia[2] || $day['num'] == date('d') || $day['num'] == date('d', strtotime($today . ' +1 day')) ){
 		    		$day['edit'] = true;
 		    	}
 			}
