@@ -211,13 +211,20 @@ function displayAjaxError(xhr, status, error) {
     //swal.close();
     if (/^[\],:{}\s]*$/.test(xhr.responseText.replace(/\\["\\\/bfnrtu]/g, '@').replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
         display = JSON.parse(xhr.responseText).msg;
+        class_type = JSON.parse(xhr.responseText).status;
     } else {
         display = '';
+        class_type = 'error';
     }
+
+    if (class_type == 'error') { title = '¡Error!'; txt_msg = 'Ha ocurrido un error'; }
+    if (class_type == 'info') { title = 'Información'; txt_msg = 'Detalles:'; }
+    if (class_type == 'warning') { title = '¡Atención!'; txt_msg = 'Información importante:'; }
+
     swal({
-        title: "<small>¡Error!</small>",
-        text: "Ha ocurrido un error.<br><span>" + display + "</span><br><span style='color:#F8BB86'>\nError: " + xhr.status + " (" + error + ") "+"</span>",
-        type: 'error',
+        title: "<small>"+title+"</small>",
+        text: ""+txt_msg+"<br><span>" + display + "</span><br><span style='color:#F8BB86'>\nError: " + xhr.status + " (" + error + ") "+"</span>",
+        type: class_type,
         html: true
     });
 }

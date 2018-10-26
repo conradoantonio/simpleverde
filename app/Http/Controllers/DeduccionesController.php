@@ -52,7 +52,7 @@ class DeduccionesController extends Controller
     }
 
     /**
-     * Asigna uno o más detalles de retenciones a un usuario en su hoja de pago
+     * Asigna uno o más deducciones a un usuario en su hoja de pago
      *
      * @return \Illuminate\Http\Response
      */
@@ -60,13 +60,13 @@ class DeduccionesController extends Controller
     {
         if (!is_array($req->ids)) { return response(['msg' => 'Datos erróneos, por favor, trate de nuevo', 'status' => 'error'], 400); }
 
-        foreach ($req->ids as $id) {
+        foreach ( $req->ids as $id ) {
             $detalle = DeduccionDetalle::find($id);
             
             if ( !$detalle ) { return response(['msg' => 'Registro no encontrado, por favor, trate nuevamente', 'status' => 'error'], 404); }
 
             $detalle->usuario_pago_id = $req->usuario_pago_id;
-            $detalle->status = 1;//Paid
+            $detalle->status = 1;//Pagado
 
             $detalle->save();
         }
@@ -75,15 +75,36 @@ class DeduccionesController extends Controller
     }
 
     /**
-     * Muestra las retenciones de un empleado
+     * Remueve la relación entre una deducción y la hoja de pago (Reinicia)
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function remover_pago(Request $req)
+    {
+        $detalles = DeduccionDetalle::where('usuario_pago_id', $req->usuario_pago_id)->update(['usuario_pago_id' => null, 'status' => 0]);
+        
+        if ( !$detalles ) { return response(['msg' => 'El empleado actual no cuenta con deducciones asiganadas en esta lista de asistencia', 'status' => 'error'], 404); }
+
+        return response(['msg' => 'Deducciones removidas (reiniciadas) de esta lista de asistencias', 'status' => 'success', 'url' => $req->redirect_to], 200);
+    }
+
+    /**
+     * Muestra las deducciones de un empleado
      *
      * @return \Illuminate\Http\Response
      */
     public function mostrar_detalles(Request $req)
     {
-        $empleado = Empleado::find($req->empleado_id);
+        $empleado = Empleado::with('deducciones')->whereHas('deducciones', function($query){
+            $query->with('detalles')->whereHas('detalles', function($que) {
+                $que->whereDoesntHave('usuario_pago');
+            });
+        })->find($req->empleado_id);
 
-        if (!$empleado) { return response(['msg' => 'ID de empleado inválido', 'status' => 'error'], 404); }
+
+        //$empleado = Empleado::find($req->empleado_id);
+
+        if (!$empleado) { return response(['msg' => 'El empleado no cuenta con deducciones pendientes de asignar', 'status' => 'info'], 404); }
 
         if ( count( $empleado->deducciones ) ) {
             foreach ( $empleado->deducciones as $deduccion ) {

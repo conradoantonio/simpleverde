@@ -41,4 +41,12 @@ class UsuarioPago extends Model
 	{
 		return $this->hasMany('App\DeduccionDetalle');
 	}
+
+	/**
+     * Obtiene las retenciones asociadas con el registro.
+     */
+	public function retenciones()
+	{
+		return $this->hasMany('App\Retencion');
+	}
 }

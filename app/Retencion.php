@@ -15,7 +15,7 @@ class Retencion extends Model
      * Define el nombre de los campos que podrán ser alterados de la tabla del modelo.
      */
     protected $fillable = [
-    	'empleado_id', 'empresa_id', 'importe', 'fecha_inicio', 'fecha_fin', 'num_dias', 'comentarios', 'status'
+    	'empleado_id', 'empresa_id', 'usuario_pago_id', 'importe', 'fecha_inicio', 'fecha_fin', 'num_dias', 'comentarios', 'status'
     ];
 
     /**
@@ -32,5 +32,13 @@ class Retencion extends Model
     public function empresa()
     {
         return $this->belongsTo('App\Empresa', 'empresa_id');
+    }
+
+    /**
+     * Obtiene la lista de pago y el usuario al que se encuentra asociado el detalle.
+     */
+    public function usuario_pago()
+    {
+        return $this->belongsTo('App\UsuarioPago', 'usuario_pago_id');
     }
 }

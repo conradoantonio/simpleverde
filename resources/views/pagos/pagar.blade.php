@@ -88,7 +88,10 @@ img#company-logo{
 									<th>Dias a pagar</th>
 									<th>Empresa</th>
 									<th>Deducciones</th>
+									<th>Retenciones</th>
 									<th>Subtotal</th>
+									<th>Notas (Deducciones)</th>
+									{{-- <th>Notas (Retenciones)</th> --}}
 									<th>Notas</th>
 								</thead>
 								<tbody>
@@ -104,7 +107,22 @@ img#company-logo{
 										<td>{{$asistencia->total}}</td>
 										<td>{{$pago->empresa->nombre}}</td>
 										<td>${{number_format($asistencia->pago->deducciones_detalles->sum('cantidad'),2)}}</td>
-										<td>${{number_format($asistencia->pago->pago->servicio->sueldo_diario_guardia*$asistencia->total,2)}}</td>
+										<td>${{number_format($asistencia->pago->retenciones->sum('importe'),2)}}</td>
+										<td>${{ count($asistencia->pago->retenciones) ? '0' : number_format($asistencia->pago->pago->servicio->sueldo_diario_guardia*$asistencia->total,2)}}</td>
+										<td>
+											@if(  count($asistencia->pago->deducciones_detalles) )
+												@foreach($asistencia->pago->deducciones_detalles as $detalle)
+													-{{$detalle->deduccion->comentarios}}<br>
+												@endforeach
+											@endif
+										</td>
+										{{-- <td>
+											@if(  count($asistencia->pago->retenciones) )
+												@foreach($asistencia->pago->retenciones as $retencion)
+													-{{$retencion->comentarios}}<br>
+												@endforeach
+											@endif
+										</td> --}}
 										<td>{{$asistencia->pago->notas}}</td>
 									</tr>
 									@endforeach

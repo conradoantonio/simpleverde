@@ -44,13 +44,13 @@
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="titulo-pagar-deduccion">Deducciones a pagar</h4>
             </div>
-            <form id="form-pagar-deduccion" onsubmit="return false" action="{{ url('deducciones/pagar') }}" enctype="multipart/form-data" method="POST" autocomplete="off">
+            <form id="form-pagar-deducciones" onsubmit="return false" action="{{ url('deducciones/pagar') }}" enctype="multipart/form-data" method="POST" autocomplete="off">
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-sm-6 col-xs-12 hide">
                             <div class="form-group">
                                 <label for="usuario_pago_id">Usuario pago ID</label>
-                                <input type="text" class="" name="usuario_pago_id" value="">
+                                <input type="text" class="not-empty" name="usuario_pago_id" value="">
                             </div>
                         </div>
                     </div>
@@ -72,7 +72,51 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary" id="adjuntar-deduccion">Adjuntar deducción</button>
+                    <button type="submit" class="btn btn-primary btn-deduccion" id="adjuntar-deduccion">Adjuntar deducción</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                </div>
+            </form>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="titulo-pagar-retencion" id="modal-pagar-retencion">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="titulo-pagar-retencion">Retenciones a pagar</h4>
+            </div>
+            <form id="form-pagar-retenciones" onsubmit="return false" action="{{ url('retenciones/pagar') }}" enctype="multipart/form-data" method="POST" autocomplete="off">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-6 col-xs-12 hide">
+                            <div class="form-group">
+                                <label for="usuario_pago_id">Usuario pago ID</label>
+                                <input type="text" class="not-empty" name="usuario_pago_id" value="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row retencion-detalles">
+                        <table class="table" id="empleado_retenciones">
+                            <thead>
+                                <tr>
+                                    <td class="hide">Retención detalle ID</td>
+                                    <td>ID retención</td>
+                                    <td>Número días</td>
+                                    <td>Cantidad</td>
+                                    <td>Comentarios</td>
+                                    <td>Acción</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                        {{-- Aquí aparecerán dinámicamente las retenciones del empleado --}}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary btn-retencion" id="adjuntar-retencion">Adjuntar retención</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
                 </div>
             </form>
