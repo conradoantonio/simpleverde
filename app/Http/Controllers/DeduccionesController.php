@@ -25,7 +25,7 @@ class DeduccionesController extends Controller
         $empleado = Empleado::find($req->empleado_id);
         if ( !$empleado ) { return response(['msg' => 'ID de empleado inválido, trate nuevamente', 'status' => 'error'], 404); }
 
-        $cantidad = number_format($req->total / $req->num_pagos, 2);
+        $cantidad = round($req->total / $req->num_pagos, 2);
 
         $row = New Deduccion;
 

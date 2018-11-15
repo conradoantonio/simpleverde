@@ -108,7 +108,15 @@ img#company-logo{
 										<td>{{$pago->empresa->nombre}}</td>
 										<td>${{number_format($asistencia->pago->deducciones_detalles->sum('cantidad'),2)}}</td>
 										<td>${{number_format($asistencia->pago->retenciones->sum('importe'),2)}}</td>
-										<td>${{ count($asistencia->pago->retenciones) ? '0' : number_format($asistencia->pago->pago->servicio->sueldo_diario_guardia*$asistencia->total,2)}}</td>
+										<td>$
+											{{ 
+												( count( $asistencia->pago->retenciones ) ? '0' : 
+													( count( $asistencia->pago->deducciones_detalles ) ? number_format(( $asistencia->pago->pago->servicio->sueldo_diario_guardia*$asistencia->total ) - ( $asistencia->pago->deducciones_detalles->sum('cantidad') ), 2) : 
+														number_format( $asistencia->pago->pago->servicio->sueldo_diario_guardia*$asistencia->total,2 )
+													)
+												)
+											}}
+										</td>
 										<td>
 											@if(  count($asistencia->pago->deducciones_detalles) )
 												@foreach($asistencia->pago->deducciones_detalles as $detalle)

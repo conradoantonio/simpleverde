@@ -404,7 +404,18 @@ class PagosController extends Controller
 		$notas_ded = '';
 
 		foreach ($asistencias as $asistencia) {
-			
+			$notas_ded = '';
+			$importe = 0;
+
+			#Calcula el importe
+			if ( count( $asistencia->pago->retenciones ) ) {
+				$importe = 0;
+			} elseif ( count( $asistencia->pago->deducciones_detalles ) ) {
+				$importe = ($asistencia->pago->pago->servicio->sueldo_diario_guardia*$asistencia->total) - ($asistencia->pago->deducciones_detalles->sum('cantidad'));
+			} else {
+				$importe = $asistencia->pago->pago->servicio->sueldo_diario_guardia*$asistencia->total;
+			}
+
 			if ( count($asistencia->pago->deducciones_detalles) ) {
 				foreach ( $asistencia->pago->deducciones_detalles as $detalle ) {
 					$notas_ded .= $detalle->deduccion->comentarios."\n";
@@ -413,7 +424,7 @@ class PagosController extends Controller
 
 			$array[] = [
 				'Nombre completo' => $asistencia->pago->usuarios->nombre.' '.$asistencia->pago->usuarios->apellido_paterno.' '.$asistencia->pago->usuarios->apellido_materno,
-				'Importe ' => count($asistencia->pago->retenciones) ? '0' : number_format($asistencia->pago->pago->servicio->sueldo_diario_guardia*$asistencia->total,2),
+				'Importe ' => number_format( $importe, 2 ),
 				'Número de cuenta' => $asistencia->pago->usuarios->num_cuenta,
 				'Número de empleado' => $asistencia->pago->usuarios->num_empleado,
 				'Fecha de pagos' => date('d M Y', strtotime($asistencia->pago->pago->fecha_inicio)).' - '.date('d M Y', strtotime($asistencia->pago->pago->fecha_fin)),
