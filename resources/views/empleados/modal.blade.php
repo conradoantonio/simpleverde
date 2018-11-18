@@ -17,13 +17,13 @@
                         <div class="col-sm-12 col-xs-12">
                             <div class="form-group">
                                 <label for="total">Monto</label>
-                                <input type="text" class="form-control not-empty" name="total" data-msg="Monto">
+                                <input type="text" class="form-control not-empty decimal" name="total" data-msg="Monto">
                             </div>
                         </div>
                         <div class="col-sm-12 col-xs-12">
                             <div class="form-group">
                                 <label for="num_pagos">Número de pagos</label>
-                                <input type="text" class="form-control not-empty" name="num_pagos" data-msg="Número de pagos">
+                                <input type="text" class="form-control not-empty decimal" name="num_pagos" data-msg="Número de pagos">
                             </div>
                         </div>
                         <div class="col-sm-12 col-xs-12">
@@ -81,7 +81,7 @@
                         <div class="col-sm-12 col-xs-12">
                             <div class="form-group">
                                 <label for="importe">Importe</label>
-                                <input type="text" class="form-control not-empty" name="importe" data-msg="Importe">
+                                <input type="text" class="form-control not-empty decimal" name="importe" data-msg="Importe">
                             </div>
                         </div>
                         <div class="col-sm-12 col-xs-12">
