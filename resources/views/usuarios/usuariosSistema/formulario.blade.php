@@ -127,6 +127,13 @@
                                                 <label for="emp_baj_mod" style="padding-left:0px;"></label>
                                             </div>
                                         </div>
+                                        <div class="col-sm-3 col-xs-12" style="padding-bottom: 20px;">
+                                            <label for="emp_mod_prop">Modificar retenciones, deducciones y conceptos</label>
+                                            <div class="checkbox check-primary">
+                                                <input id="emp_mod_prop" name="emp_mod_prop" type="checkbox" {{($usuario && $usuario->privilegios ? ($usuario->privilegios->emp_mod_prop ? 'checked' : '') : '')}}>
+                                                <label for="emp_mod_prop" style="padding-left:0px;"></label>
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <hr>
@@ -139,6 +146,21 @@
                                                 <label for="asistencias" style="padding-left:0px;"></label>
                                             </div>
                                         </div>
+                                        <div class="col-sm-3 col-xs-12" style="padding-bottom: 20px;">
+                                            <label for="asistencias_mod_list">Modificar lista de asistencias</label>
+                                            <div class="checkbox check-primary">
+                                                <input id="asistencias_mod_list" name="asistencias_mod_list" type="checkbox" {{($usuario && $usuario->privilegios ? ($usuario->privilegios->asistencias_mod_list ? 'checked' : '') : '')}}>
+                                                <label for="asistencias_mod_list" style="padding-left:0px;"></label>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-3 col-xs-12" style="padding-bottom: 20px;">
+                                            <label for="asistencias_mod_all_days">Modificar lista de asistencias sin restricciones</label>
+                                            <div class="checkbox check-primary">
+                                                <input id="asistencias_mod_all_days" name="asistencias_mod_all_days" type="checkbox" {{($usuario && $usuario->privilegios ? ($usuario->privilegios->asistencias_mod_all_days ? 'checked' : '') : '')}}>
+                                                <label for="asistencias_mod_all_days" style="padding-left:0px;"></label>
+                                            </div>
+                                        </div>
+                                        
                                         <div class="col-sm-3 col-xs-12" style="padding-bottom: 20px;">
                                             <label for="historial_asistencias">Historial de asistencias</label>
                                             <div class="checkbox check-primary">

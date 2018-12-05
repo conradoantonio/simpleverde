@@ -24,7 +24,9 @@ function ajaxForm(form_id, config) {
                     refreshTable(data.url, config.column, config.table_id, config.container_id);
             } else if (config.refresh == 'galery') {
                     refreshGalery(data.url, config.container_id);
-            } else if(config.redirect) {
+            } else if (config.refresh == 'content') {
+                    refreshContent(data.html, config.container_id);
+            } else if (config.redirect) {
                 setTimeout( function() {
                     if (data.url) {
                         window.location.href = data.url;
@@ -101,6 +103,8 @@ function ajaxSimple(config) {
                 refreshTable(data.url, config.column, config.table_id, config.container_id);
             } else if (config.refresh == 'galery') {
                 refreshGalery(data.url, config.container_id);
+            } else if (config.refresh == 'content') {
+                    refreshContent(data.html, config.container_id);
             } else if(config.callback) {
                 window[config.callback](data, config);
             } else if(config.redirect) {

@@ -49,4 +49,12 @@ class UsuarioPago extends Model
 	{
 		return $this->hasMany('App\Retencion');
 	}
+
+	/**
+     * Obtiene las conceptos asociadas con el registro.
+     */
+	public function conceptos()
+	{
+		return $this->hasMany('App\Concepto');
+	}
 }

@@ -23,6 +23,7 @@
                     @if ($empleado)
                         <li><a href="#tabla_deducciones">Deducciones</a></li>
                         <li><a href="#tabla_retenciones">Retenciones</a></li>
+                        <li><a href="#tabla_conceptos">Conceptos</a></li>
                     @endif
                 </ul>
                 <div class="tab-content">
@@ -541,103 +542,18 @@
                     </div>
                     @if ($empleado)
                         <div class="tab-pane" id="tabla_deducciones">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    @if ( count( $empleado->deducciones ) )
-                                        <div id="opciones-adicionales">
-                                            <h4>Opciones <span class="semi-bold">adicionales</span></h4>
-                                            <div>
-                                                <button class="btn btn-success exportar-excel-deducciones" data-row-id="{{$empleado->id}}"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Descargar excel</button>
-                                            </div>
-                                        </div>
-                                        <table class="table" id="empleado_deducciones">
-                                            <thead>
-                                                <tr>
-                                                    <td>ID</td>
-                                                    <td>Total a pagar</td>
-                                                    <td>Número de pagos</td>
-                                                    <td>Comentarios</td>
-                                                    <td>Fecha creación</td>
-                                                    <td>Acciones</td>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach( $empleado->deducciones as $deduccion )
-                                                    <tr>
-                                                        <td>{{$deduccion->id}}</td>
-                                                        <td>${{$deduccion->total}}</td>
-                                                        <td>{{$deduccion->num_pagos}}</td>
-                                                        <td>{{$deduccion->comentarios}}</td>
-                                                        <td>
-                                                            {{strftime('%d', strtotime($deduccion->created_at)).' de '.strftime('%B', strtotime($deduccion->created_at)). ' del '.strftime('%Y', strtotime($deduccion->created_at))}}
-                                                        </td>
-                                                        <td>
-                                                            <button type="button" class="btn btn-success detalle_deduccion" data-row-data="{{$deduccion->detalles}}">Detalles</button>
-                                                        </td>
-                                                    </tr>
-                                                @endforeach
-                                            </tbody>
-                                        </table>
-                                    @else
-                                        <h5>No hay deducciones registradas para este empleado</h5>
-                                    @endif
-                                </div>
+                            <div id="table_deducciones">
+                                @include('empleados.tablas.deducciones')
                             </div>
                         </div>
                         <div class="tab-pane" id="tabla_retenciones">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    @if ( count( $empleado->retenciones ) )
-                                        <div id="opciones-adicionales">
-                                            <h4>Opciones <span class="semi-bold">adicionales</span></h4>
-                                            <div class="alert alert-info alert-dismissible text-left" role="alert">
-                                                <button type="button" class="close" data-dismiss="alert" aria-label="Close"></button>
-                                                <strong>Nota: </strong>Descargar el excel hará que todas las retenciones se marquen como atendidas.
-                                            </div>
-                                            <div>
-                                                <button class="btn btn-success exportar-excel-retenciones" data-row-id="{{$empleado->id}}"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Descargar excel</button>
-                                            </div>
-                                        </div>
-                                        <table class="table" id="empleado_retenciones">
-                                            <thead>
-                                                <tr>
-                                                    <td>ID</td>
-                                                    <td>Lugar</td>
-                                                    <td>Importe</td>
-                                                    <td>Rango de fechas</td>
-                                                    <td>No. días</td>
-                                                    <td>Comentarios</td>
-                                                    <td>Fecha creación</td>
-                                                    <td>Status</td>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach( $empleado->retenciones as $retencion )
-                                                    <tr>
-                                                        <td>{{$retencion->id}}</td>
-                                                        <td>{{$retencion->empresa->nombre}}</td>
-                                                        <td>${{$retencion->importe}}</td>
-                                                        <td>{{date('d/M/Y', strtotime($retencion->fecha_inicio))}} - {{date('d/M/Y', strtotime($retencion->fecha_fin))}}</td>
-                                                        <td>{{$retencion->num_dias}}</td>
-                                                        <td>{{$retencion->comentarios}}</td>
-                                                        <td>
-                                                            {{strftime('%d', strtotime($retencion->created_at)).' de '.strftime('%B', strtotime($retencion->created_at)). ' del '.strftime('%Y', strtotime($retencion->created_at))}}
-                                                        </td>
-                                                        <td>
-                                                            {!!
-                                                                ( $retencion->status == 0 ? "<span class='label label-danger'>Pendiente</span>" : 
-                                                                    ( $retencion->status == 1 ? "<span class='label label-success'>Atendido</span>" : "<span class='label label-default'>Desconocido</span>" )
-                                                                )
-                                                            !!}
-                                                        </td>
-                                                    </tr>
-                                                @endforeach
-                                            </tbody>
-                                        </table>
-                                    @else
-                                        <h5>No hay retenciones registradas para este empleado</h5>
-                                    @endif
-                                </div>
+                            <div id="table_retenciones">
+                                @include('empleados.tablas.retenciones')
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="tabla_conceptos">
+                            <div id="table_conceptos">
+                                @include('empleados.tablas.conceptos')
                             </div>
                         </div>
                     @endif
@@ -656,6 +572,39 @@
         });
     });
 
+    /*Método para eliminar retenciones, deducciones y conceptos*/
+    $('body').delegate('.eliminar_deduccion, .eliminar_retencion, .eliminar_concepto', 'click', function() {
+        var row_id = $(this).data('row_id');
+        var swl_txt = $(this).data('txt_msg');
+        var route_fix = $(this).data('route_fix');
+        var container = $(this).data('container_id');
+
+        swal({
+            title: "¿Realmente desea eliminar "+swl_txt+" con el ID "+row_id+"?",
+            text: "¡Esta acción no podrá deshacerse!",
+            html: true,
+            type: "warning",
+            showCancelButton: true,
+            cancelButtonText: "Cancelar",
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Si, continuar",
+            showLoaderOnConfirm: true,
+            allowEscapeKey: true,
+            allowOutsideClick: true,
+            closeOnConfirm: false
+        },
+        function() {
+            config = {
+                'route'           : baseUrl.concat('/'+route_fix+'/'+'eliminar'),
+                'id'              : row_id,
+                'refresh'         : 'content',
+                'container_id'    : container,
+            }
+            loadingMessage('Eliminando '+swl_txt+'...');
+            ajaxSimple(config);
+        });
+    });
+
     //Set up the button to download the excel file
     $('body').delegate('button.exportar-excel-retenciones','click', function() {
         var id = $(this).data('row-id');
@@ -666,6 +615,12 @@
     $('body').delegate('button.exportar-excel-deducciones','click', function() {
         var id = $(this).data('row-id');
         window.location.href = baseUrl+'/deducciones/excel/export/'+id;
+    });
+
+    //Set up the button to download the excel file
+    $('body').delegate('button.exportar-excel-conceptos','click', function() {
+        var id = $(this).data('row-id');
+        window.location.href = baseUrl+'/conceptos/excel/export/'+id;
     });
 
     $('body').delegate('.detalle_deduccion','click', function() {

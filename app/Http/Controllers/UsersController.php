@@ -116,8 +116,11 @@ class UsersController extends Controller
         $privilegios->emp_act_mod = $req->emp_act_mod ? 1 : 0;
         $privilegios->emp_baj = $req->emp_baj ? 1 : 0;
         $privilegios->emp_baj_mod = $req->emp_baj_mod ? 1 : 0;
+        $privilegios->emp_mod_prop = $req->emp_mod_prop ? 1 : 0;
         $privilegios->usuarios = $req->usuarios ? 1 : 0;
         $privilegios->asistencias = $req->asistencias ? 1 : 0;
+        $privilegios->asistencias_mod_list = $req->asistencias_mod_list ? 1 : 0;
+        $privilegios->asistencias_mod_all_days = $req->asistencias_mod_all_days ? 1 : 0;
         $privilegios->historial_asistencias = $req->historial_asistencias ? 1 : 0;
 
         $privilegios->save();
@@ -162,8 +165,11 @@ class UsersController extends Controller
         $privilegios->emp_act_mod = $req->emp_act_mod ? 1 : 0;
         $privilegios->emp_baj = $req->emp_baj ? 1 : 0;
         $privilegios->emp_baj_mod = $req->emp_baj_mod ? 1 : 0;
+        $privilegios->emp_mod_prop = $req->emp_mod_prop ? 1 : 0;
         $privilegios->usuarios = $req->usuarios ? 1 : 0;
         $privilegios->asistencias = $req->asistencias ? 1 : 0;
+        $privilegios->asistencias_mod_list = $req->asistencias_mod_list ? 1 : 0;
+        $privilegios->asistencias_mod_all_days = $req->asistencias_mod_all_days ? 1 : 0;
         $privilegios->historial_asistencias = $req->historial_asistencias ? 1 : 0;
 
         $privilegios->save();

@@ -75,6 +75,7 @@ Route::group(['middleware' => 'auth'], function () {
 	/*Rutas para deducciones*/
 	Route::group(['prefix' => 'deducciones'], function () {
 		Route::post('guardar','DeduccionesController@guardar');//Guarda los datos de una deducción
+		Route::post('eliminar','DeduccionesController@eliminar');//Elimina los datos de una deducción
 		Route::post('pagar','DeduccionesController@asignar_pago');//Adjunta los pagos de deducción a una hoja de pago
 		Route::post('reiniciar','DeduccionesController@remover_pago');//Remueve la relación entre una deducción y la hoja de pago (Reinicia)
 		Route::post('mostrar-detalles','DeduccionesController@mostrar_detalles');//Muestra las deducciones de un empleado
@@ -85,11 +86,23 @@ Route::group(['middleware' => 'auth'], function () {
 	/*Rutas para retenciones*/
 	Route::group(['prefix' => 'retenciones'], function () {
 		Route::post('guardar','RetencionesController@guardar');//Guarda los datos de una retención
+		Route::post('eliminar','RetencionesController@eliminar');//Elimina los datos de una retención
 		Route::post('pagar','RetencionesController@asignar_pago');//Adjunta los pagos de retención a una hoja de pago
 		Route::post('reiniciar','RetencionesController@remover_pago');//Remueve la relación entre una retención y la hoja de pago (Reinicia)
 		Route::post('mostrar-detalles','RetencionesController@mostrar_detalles');//Muestra las retenciones de un empleado
 		Route::get('excel/export/{empleado_id}','RetencionesController@exportar_excel');//Exporta las retenciones del empleado y cambia su status
 		Route::get('excel/export/general/{status}','RetencionesController@exportar_excel_multiple');//Exporta las retenciones de los empleados dependiendo de su status
+	});
+
+	/*Rutas para conceptos*/
+	Route::group(['prefix' => 'conceptos'], function () {
+		Route::post('guardar','ConceptosController@guardar');//Guarda los datos de un concepto
+		Route::post('eliminar','ConceptosController@eliminar');//Elimina los datos de un concepto
+		Route::post('pagar','ConceptosController@asignar_pago');//Adjunta los pagos de un concepto a una hoja de pago
+		Route::post('reiniciar','ConceptosController@remover_pago');//Remueve la relación entre un concepto y la hoja de pago (Reinicia)
+		Route::post('mostrar-detalles','ConceptosController@mostrar_detalles');//Muestra las conceptos de un empleado
+		Route::get('excel/export/{empleado_id}','ConceptosController@exportar_excel');//Exporta las conceptos del empleado y cambia su status
+		Route::get('excel/export/general/{status}','ConceptosController@exportar_excel_multiple');//Exporta las conceptos de los empleados dependiendo de su status
 	});
 
 

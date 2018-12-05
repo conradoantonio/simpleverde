@@ -7,15 +7,15 @@ use Illuminate\Http\Request;
 use Excel;
 
 use App\Empleado;
-use App\Retencion;
+use App\Concepto;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
-class RetencionesController extends Controller
+class ConceptosController extends Controller
 {
     /**
-     * Guarda los registros de retenciones
+     * Guarda los registros de conceptos
      *
      * @return \Illuminate\Http\Response
      */
@@ -24,32 +24,27 @@ class RetencionesController extends Controller
         $empleado = Empleado::find($req->empleado_id);
         if ( !$empleado ) { return response(['msg' => 'ID de empleado inválido, trate nuevamente', 'status' => 'error'], 404); }
 
-        $row = New Retencion;
+        $row = New Concepto;
 
         $row->empleado_id = $req->empleado_id;
-        $row->empresa_id = $req->empresa_id;
         $row->importe = $req->importe;
-        $row->empresa_id = $req->empresa_id;
-        $row->fecha_inicio = $req->fecha_inicio;
-        $row->fecha_fin = $req->fecha_fin;
-        $row->num_dias = $req->num_dias;
         $row->comentarios = $req->comentarios;
 
         $row->save();
 
         $url = url($empleado->status == 1 ? 'empleados' : 'empleados/inactivos');
 
-        return response(['msg' => 'Retención registrada correctamente', 'status' => 'success', 'url' => $url], 200);
+        return response(['msg' => 'Concepto registrado correctamente', 'status' => 'success', 'url' => $url], 200);
     }
 
     /**
-     * Elimina las retenciones y sus detalles de un empleado
+     * Elimina los conceptos y sus detalles de un empleado
      *
      * @return \Illuminate\Http\Response
      */
     public function eliminar(Request $req)
     {
-        $row = Retencion::find($req->id);
+        $row = Concepto::find($req->id);
 
         if (! $row ) { return response(['msg' => 'Registro no encontrado, trate de nuevo', 'status' => 'error'], 404); }
 
@@ -59,13 +54,13 @@ class RetencionesController extends Controller
 
         $empleado = Empleado::find($row->empleado->id);
 
-        $html = view('empleados.tablas.retenciones', compact(['empleado']))->render();
+        $html = view('empleados.tablas.conceptos', compact(['empleado']))->render();
 
-        return response(['msg' => 'Retención eliminada correctamente', 'status' => 'success', 'url' => $url, 'html' => $html], 200);
+        return response(['msg' => 'Concepto eliminado correctamente', 'status' => 'success', 'url' => $url, 'html' => $html], 200);
     }
 
     /**
-     * Asigna una o más retenciones a un usuario en su hoja de pago
+     * Asigna una o más conceptos a un usuario en su hoja de pago
      *
      * @return \Illuminate\Http\Response
      */
@@ -74,7 +69,7 @@ class RetencionesController extends Controller
         if (!is_array($req->ids)) { return response(['msg' => 'Datos erróneos, por favor, trate de nuevo', 'status' => 'error'], 400); }
 
         foreach ( $req->ids as $id ) {
-            $row = Retencion::find($id);
+            $row = Concepto::find($id);
             
             if ( !$row ) { return response(['msg' => 'Registro no encontrado, por favor, trate nuevamente', 'status' => 'error'], 404); }
 
@@ -84,41 +79,41 @@ class RetencionesController extends Controller
             $row->save();
         }
 
-        return response(['msg' => 'Retención asignada a hoja de pago correctamente', 'status' => 'success', 'url' => $req->redirect_to], 200);
+        return response(['msg' => 'Concepto asignado a hoja de pago correctamente', 'status' => 'success', 'url' => $req->redirect_to], 200);
     }
 
     /**
-     * Remueve la relación entre una retención y la hoja de pago (Reinicia)
+     * Remueve la relación entre un concepto y la hoja de pago (Reinicia)
      *
      * @return \Illuminate\Http\Response
      */
     public function remover_pago(Request $req)
     {
-        $detalles = Retencion::where('usuario_pago_id', $req->usuario_pago_id)->update(['usuario_pago_id' => null, 'status' => 0]);
+        $detalles = Concepto::where('usuario_pago_id', $req->usuario_pago_id)->update(['usuario_pago_id' => null, 'status' => 0]);
         
-        if ( !$detalles ) { return response(['msg' => 'El empleado actual no cuenta con retenciones asiganadas en esta lista de asistencia', 'status' => 'error'], 404); }
+        if ( !$detalles ) { return response(['msg' => 'El empleado actual no cuenta con conceptos asiganados en esta lista de asistencia', 'status' => 'error'], 404); }
 
-        return response(['msg' => 'Retenciones removidas (reiniciadas) de esta lista de asistencias', 'status' => 'success', 'url' => $req->redirect_to], 200);
+        return response(['msg' => 'Conceptos removidos (reiniciados) de esta lista de asistencias', 'status' => 'success', 'url' => $req->redirect_to], 200);
     }
 
     /**
-     * Muestra las retenciones de un empleado
+     * Muestra las conceptos de un empleado
      *
      * @return \Illuminate\Http\Response
      */
     public function mostrar_detalles(Request $req)
     {
-        $empleado = Empleado::with('retenciones')->whereHas('retenciones', function($query) {
+        $empleado = Empleado::with('conceptos')->whereHas('conceptos', function($query) {
             $query->whereDoesntHave('usuario_pago')->where('status', 0);
         })->find($req->empleado_id);
 
-        if (!$empleado) { return response(['msg' => 'Este empleado no cuenta con retenciones por pagar', 'status' => 'info'], 404); }
+        if (!$empleado) { return response(['msg' => 'Este empleado no cuenta con conceptos por asociar', 'status' => 'info'], 404); }
 
         return $empleado;
     }
 
     /**
-     * Exporta el excel con las retenciones del empleado
+     * Exporta el excel con las conceptos del empleado
      *
      * @return \Illuminate\Http\Response
      */
@@ -127,33 +122,30 @@ class RetencionesController extends Controller
         $empleado = Empleado::findOrFail($id);
         $array = array();
 
-        if (count($empleado->retenciones)) {
-            foreach ($empleado->retenciones as $retencion) {
+        if (count($empleado->conceptos)) {
+            foreach ($empleado->conceptos as $concepto) {
                 $array[] = [
                     'Nombre completo' => $empleado->nombre.' '.$empleado->apellido_paterno.' '.$empleado->apellido_materno,
-                    'Importe ' => number_format($retencion->importe,2),
-                    'Número de días ' => $retencion->num_dias,
+                    'Importe ' => number_format($concepto->importe,2),
                     'Número de cuenta' => $empleado->num_cuenta,
                     'Número de empleado' => $empleado->num_empleado,
-                    'Rango de fechas' => date('d M Y', strtotime($retencion->fecha_inicio)).' - '.date('d M Y', strtotime($retencion->fecha_fin)),
-                    'Empresa ' => $retencion->empresa->nombre,
-                    'Notas' => $retencion->comentarios
+                    'Notas' => $concepto->comentarios
                 ];
 
-                #$retencion->status = 1;
+                #$concepto->status = 1;
 
-                #$retencion->save();
+                #$concepto->save();
             }
         }
 
-        Excel::create("Retenciones de empleado $empleado->nombre", function($excel) use($array) {
+        Excel::create("Conceptos de empleado $empleado->nombre", function($excel) use($array) {
             $excel->sheet('Hoja 1', function($sheet) use($array) {
-                $sheet->cells('A:H', function($cells) {
+                $sheet->cells('A:E', function($cells) {
                     $cells->setAlignment('center');
                     $cells->setValignment('center');
                 });
 
-                $sheet->cells('A1:H1', function($cells) {
+                $sheet->cells('A1:E1', function($cells) {
                     $cells->setFontWeight('bold');
                 });
 
@@ -165,7 +157,7 @@ class RetencionesController extends Controller
     }
 
     /**
-     * Exporta el excel con las retenciones del empleado
+     * Exporta el excel con las conceptos del empleado
      *
      * @return \Illuminate\Http\Response
      */
@@ -176,29 +168,26 @@ class RetencionesController extends Controller
 
         if (count($empleados)) {
             foreach ($empleados as $empleado) {
-                if (count($empleado->retenciones)) {
-                    foreach ($empleado->retenciones as $retencion) {
+                if (count($empleado->conceptos)) {
+                    foreach ($empleado->conceptos as $concepto) {
                         $array[] = [
                             'Nombre completo' => $empleado->nombre.' '.$empleado->apellido_paterno.' '.$empleado->apellido_materno,
-                            'Importe ' => number_format($retencion->importe,2),
-                            'Número de días ' => $retencion->num_dias,
+                            'Importe ' => number_format($concepto->importe,2),
                             'Número de cuenta' => $empleado->num_cuenta,
                             'Número de empleado' => $empleado->num_empleado,
-                            'Rango de fechas' => date('d M Y', strtotime($retencion->fecha_inicio)).' - '.date('d M Y', strtotime($retencion->fecha_fin)),
-                            'Empresa ' => $retencion->empresa->nombre,
-                            'Notas' => $retencion->comentarios,
-                            'Status ' => $retencion->status == 0 ? 'Pendiente' : 'Atendido',
+                            'Notas' => $concepto->comentarios,
+                            'Status ' => $concepto->status == 0 ? 'Pendiente' : 'Atendido',
                         ];
 
-                        //$retencion->status = 1;
+                        //$concepto->status = 1;
 
-                        //$retencion->save();
+                        //$concepto->save();
                     }
                 }
             }
         }
 
-        Excel::create("Retenciones de empleados", function($excel) use($array) {
+        Excel::create("Conceptos de empleados", function($excel) use($array) {
             $excel->sheet('Hoja 1', function($sheet) use($array) {
                 $sheet->cells('A:I', function($cells) {
                     $cells->setAlignment('center');

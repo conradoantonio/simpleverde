@@ -41,8 +41,10 @@ input:-webkit-autofill {
                             <h4>Opciones <span class="semi-bold">adicionales</span></h4>
                             <div>
                                 <button class="btn btn-default" id="download"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Descargar excel master</button>
-                                <a href="{{url('altaNomina')}}" class="btn btn-primary"><i class="fa fa-plus" aria-hidden="true"></i> Nueva lista de asistencia</a>
-                                <button class="btn btn-danger" id="borrar_multiples_listas" disabled><i class="fa fa-trash" aria-hidden="true"></i> Eliminar lista</button>
+                                @if ($modify)
+                                    <a href="{{url('altaNomina')}}" class="btn btn-primary"><i class="fa fa-plus" aria-hidden="true"></i> Nueva lista de asistencia</a>
+                                    <button class="btn btn-danger" id="borrar_multiples_listas" disabled><i class="fa fa-trash" aria-hidden="true"></i> Eliminar lista</button>
+                                @endif
                             </div>
                         </div>
                     @endif

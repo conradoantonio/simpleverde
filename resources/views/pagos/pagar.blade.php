@@ -89,6 +89,7 @@ img#company-logo{
 									<th>Empresa</th>
 									<th>Deducciones</th>
 									<th>Retenciones</th>
+									<th>Conceptos</th>
 									<th>Subtotal</th>
 									<th>Notas (Deducciones)</th>
 									{{-- <th>Notas (Retenciones)</th> --}}
@@ -108,11 +109,12 @@ img#company-logo{
 										<td>{{$pago->empresa->nombre}}</td>
 										<td>${{number_format($asistencia->pago->deducciones_detalles->sum('cantidad'),2)}}</td>
 										<td>${{number_format($asistencia->pago->retenciones->sum('importe'),2)}}</td>
+										<td>${{number_format($asistencia->pago->conceptos->sum('importe'),2)}}</td>
 										<td>$
 											{{ 
 												( count( $asistencia->pago->retenciones ) ? '0' : 
-													( count( $asistencia->pago->deducciones_detalles ) ? number_format(( $asistencia->pago->pago->servicio->sueldo_diario_guardia*$asistencia->total ) - ( $asistencia->pago->deducciones_detalles->sum('cantidad') ), 2) : 
-														number_format( $asistencia->pago->pago->servicio->sueldo_diario_guardia*$asistencia->total,2 )
+													( count( $asistencia->pago->deducciones_detalles ) ? number_format( $asistencia->pago->conceptos->sum('importe') + ( $asistencia->pago->pago->servicio->sueldo_diario_guardia*$asistencia->total ) - ( $asistencia->pago->deducciones_detalles->sum('cantidad') ), 2) : 
+														number_format( $asistencia->pago->conceptos->sum('importe') + ($asistencia->pago->pago->servicio->sueldo_diario_guardia * $asistencia->total),2 )
 													)
 												)
 											}}

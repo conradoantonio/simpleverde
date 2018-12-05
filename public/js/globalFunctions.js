@@ -38,7 +38,7 @@ function refreshTable(url, column, table_id, container_id) {
     });
 }
 
-//Reload a table by htm
+//Reload a table by html
 function refreshTableByHtml(html, column, table_id, container_id) {
     $('.delete-rows').attr('disabled', true);
     var table = table_id ? $("table#"+table_id).dataTable() : $("table#example3").dataTable();
@@ -51,6 +51,15 @@ function refreshTableByHtml(html, column, table_id, container_id) {
     $(table_id ? "table#"+table_id : "table#example3").dataTable({
         "aaSorting": [[ column ? column : 1, "desc" ]]
     });
+}
+
+//Reload a galery module
+function refreshContent(html, container_id) {
+    var container = container_id ? $("div#"+container_id) : $('div#content-container');
+    container.fadeOut();
+    container.empty();
+    container.append(html);
+    container.fadeIn();
 }
 
 //Reload a galery module

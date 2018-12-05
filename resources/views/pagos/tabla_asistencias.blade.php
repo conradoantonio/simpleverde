@@ -45,8 +45,11 @@
 		<th>Notas</th>
 		<th>Deducciones</th>
 		<th>Retenciones</th>
+		<th>Conceptos</th>
 		@if ( $pago->status != 0 ) {{-- Mientras no sea historial... --}}
+            @if( $modify )
 			<th>Acciones</th>
+			@endif
 		@endif
 	</thead>
 	<tbody>
@@ -75,13 +78,18 @@
 				<td data-notes="1"><input type="text" name="notas" value="{{$trabajador->notas?$trabajador->notas:''}}"></td>
 				<td>${{$trabajador->deducciones_detalles->sum('cantidad')}}</td>
 				<td>${{$trabajador->retenciones->sum('importe')}}</td>
-				@if ( $pago->status != 0 ) {{-- Mientras no sea historial... --}}
+				<td>${{$trabajador->conceptos->sum('importe')}}</td>
+            	@if( $modify )
+					@if ( $pago->status != 0 ) {{-- Mientras no sea historial... --}}
 					<td>
-	                    <button type="button" class="btn btn-mini btn-primary pagar_deduccion" data-empleado_id="{{$trabajador->usuarios->id}}" data-usuario_pago_id={{$trabajador->id}} data-toggle="tooltip" data-placement="top" data-title="Adjuntar deducción"><i class="fa fa-money"></i></button>
-	                    <button type="button" class="btn btn-mini btn-danger reiniciar_deduccion" data-empleado_id="{{$trabajador->usuarios->id}}" data-usuario_pago_id={{$trabajador->id}} data-toggle="tooltip" data-placement="top" data-title="Reiniciar deducción"><i class="fa fa-money"></i></button>
-	                    <button type="button" class="btn btn-mini btn-primary pagar_retencion" data-empleado_id="{{$trabajador->usuarios->id}}" data-usuario_pago_id={{$trabajador->id}} data-toggle="tooltip" data-placement="top" data-title="Adjuntar retención"><i class="fa fa-credit-card"></i></button>
-	                    <button type="button" class="btn btn-mini btn-danger reiniciar_retencion" data-empleado_id="{{$trabajador->usuarios->id}}" data-usuario_pago_id={{$trabajador->id}} data-toggle="tooltip" data-placement="top" data-title="Reiniciar retención"><i class="fa fa-credit-card"></i></button>
+	                    <button type="button" class="btn btn-mini btn-primary pagar_deduccion" data-txt_msg="deducciones" data-empleado_id="{{$trabajador->usuarios->id}}" data-usuario_pago_id={{$trabajador->id}} data-toggle="tooltip" data-placement="top" data-title="Adjuntar deducción"><i class="fa fa-money"></i></button>
+	                    <button type="button" class="btn btn-mini btn-danger reiniciar_deduccion" data-txt_msg="deducciones" data-empleado_id="{{$trabajador->usuarios->id}}" data-usuario_pago_id={{$trabajador->id}} data-toggle="tooltip" data-placement="top" data-title="Reiniciar deducción"><i class="fa fa-money"></i></button>
+	                    <button type="button" class="btn btn-mini btn-primary pagar_retencion" data-txt_msg="retenciones" data-empleado_id="{{$trabajador->usuarios->id}}" data-usuario_pago_id={{$trabajador->id}} data-toggle="tooltip" data-placement="top" data-title="Adjuntar retención"><i class="fa fa-credit-card"></i></button>
+	                    <button type="button" class="btn btn-mini btn-danger reiniciar_retencion" data-txt_msg="retenciones" data-empleado_id="{{$trabajador->usuarios->id}}" data-usuario_pago_id={{$trabajador->id}} data-toggle="tooltip" data-placement="top" data-title="Reiniciar retención"><i class="fa fa-credit-card"></i></button>
+	                    <button type="button" class="btn btn-mini btn-primary pagar_concepto" data-txt_msg="conceptos" data-empleado_id="{{$trabajador->usuarios->id}}" data-usuario_pago_id={{$trabajador->id}} data-toggle="tooltip" data-placement="top" data-title="Adjuntar conceptos"><i class="fa fa-dollar"></i></button>
+	                    <button type="button" class="btn btn-mini btn-danger reiniciar_concepto" data-txt_msg="conceptos" data-empleado_id="{{$trabajador->usuarios->id}}" data-usuario_pago_id={{$trabajador->id}} data-toggle="tooltip" data-placement="top" data-title="Reiniciar conceptos"><i class="fa fa-dollar"></i></button>
 					</td>
+					@endif
 				@endif
 			</tr>
 		@endforeach

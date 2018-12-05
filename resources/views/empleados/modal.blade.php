@@ -35,7 +35,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary save" id="guardar-servicio">Guardar</button>
+                    <button type="submit" class="btn btn-primary save">Guardar</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
                 </div>
             </form>
@@ -99,7 +99,46 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary save" id="guardar-servicio">Guardar</button>
+                    <button type="submit" class="btn btn-primary save">Guardar</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                </div>
+            </form>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="title-concept" id="md-conceptos">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="title-concept">Nuevo concepto</h4>
+            </div>
+            <form enctype="multipart/form-data" action="{{url('conceptos/guardar')}}" method="POST" onsubmit="return false;" autocomplete="off" id="form-conceptos" data-ajax-type="ajax-form-modal" data-column="0" data-refresh="table" data-redirect="" data-table_id="example3" data-container_id="div_tabla_empleados">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-6 col-xs-12 hide">
+                            <div class="form-group">
+                                <label for="empleado_id">ID</label>
+                                <input type="text" class="form-control not-empty" name="empleado_id" data-msg="ID empleado">
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-xs-12">
+                            <div class="form-group">
+                                <label for="importe">Importe</label>
+                                <input type="text" class="form-control not-empty decimal" name="importe" data-msg="Importe">
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-xs-12">
+                            <div class="form-group">
+                                <label for="comentarios">Comentarios</label>
+                                <textarea class="form-control not-empty" name="comentarios" data-msg="Comentarios"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary save">Guardar</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
                 </div>
             </form>

@@ -27,6 +27,7 @@
 			<h6>Número de empleados: {{$pago->num_empleados}}</h6>
 			<h6>Horario: {{$pago->servicio->horario}}</h6>
 			<h6>Sueldo: <strong>${{$pago->servicio->sueldo}}</strong></h6>
+			<h6>Rango de fechas: {{date('d/M/Y', strtotime($pago->fecha_inicio))}} - {{date('d/M/Y', strtotime($pago->fecha_fin))}}</h6>
 		</div>
 		<div class="" style="float: right;">
 			<img src="{{asset('img/company_logo.png')}}" alt="company-logo">

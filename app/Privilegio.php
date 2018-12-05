@@ -16,7 +16,8 @@ class Privilegio extends Model
      */
     protected $fillable = [
     	'user_id', 'cli_act', 'cli_act_mod', 'cli_baj', 'cli_baj_mod', 'emp_act', 'emp_act_mod',
-    	'emp_baj', 'emp_baj_mod', 'usuarios', 'asistencias', 'historial_asistencias'
+    	'emp_baj', 'emp_baj_mod', 'emp_mod_prop', 'usuarios', 'asistencias', 
+        'asistencias_mod_list', 'asistencias_mod_all_days', 'historial_asistencias'
     ];
 
     /**

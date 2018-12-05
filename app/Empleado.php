@@ -66,4 +66,12 @@ class Empleado extends Model
     {
         return $this->hasMany('App\Retencion', 'empleado_id');
     }
+
+    /**
+     * Obtiene las posibles conceptos del empleado.
+     */
+    public function conceptos()
+    {
+        return $this->hasMany('App\Concepto', 'empleado_id');
+    }
 }

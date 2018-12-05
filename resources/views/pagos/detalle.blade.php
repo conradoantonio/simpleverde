@@ -84,6 +84,7 @@ img#company-logo{
 									<li>Número de empleados: {{$pago->num_empleados}}</li>
 									<li>Horario: {{$pago->servicio->horario}}</li>
 									<li>Sueldo: <strong>${{$pago->servicio->sueldo}}</strong></li>
+									<li>Rango de fechas: {{date('d/M/Y', strtotime($pago->fecha_inicio))}} - {{date('d/M/Y', strtotime($pago->fecha_fin))}}</li>
 								</ul>
 							</div>
 							<div class="col-md-6 visible-lg visible-md hidden-sm hidden-xs text-right" style="float: right;">
@@ -99,14 +100,16 @@ img#company-logo{
                 </div>
             </div>
             <a href="{{$pago->status != 0 ? url('nominas') : url('historial')}}" class="btn btn-default"><i class="fa fa-arrow-left" aria-hidden="true"></i> Regresar</a>
-            <button id="agregar_empleado" class="btn btn-success {{$pago->status == 0 ? 'hide' : ''}}"><i class="fa fa-plus" aria-hidden="true"></i> Agregar empleado</button>
-            <button id="guardar" class="btn btn-primary {{$pago->status != 0 ? '' : 'hide'}}">
-            	<i class="fa fa-floppy-o" aria-hidden="true"></i>
-                <i class="fa fa-spinner fa-spin" style="display: none;"></i>
-            	Guardar
-            </button>
-            <button id="borrar_empleados" class="btn btn-danger {{$pago->status == 0 ? 'hide' : ''}}" disabled><i class="fa fa-trash" aria-hidden="true"></i> Eliminar empleados</button>
-			<a href="{{url('pagar-nomina/'.$pago->id)}}" class="btn btn-success {{$pago->status != 2 ? 'hide' : ''}}" id="btn-pagar"><i class="fa fa-money" aria-hidden="true"></i> Pagar</a>
+            @if( $modify )
+	            <button id="agregar_empleado" class="btn btn-success {{$pago->status == 0 ? 'hide' : ''}}"><i class="fa fa-plus" aria-hidden="true"></i> Agregar empleado</button>
+	            <button id="guardar" class="btn btn-primary {{$pago->status != 0 ? '' : 'hide'}}">
+	            	<i class="fa fa-floppy-o" aria-hidden="true"></i>
+	                <i class="fa fa-spinner fa-spin" style="display: none;"></i>
+	            	Guardar
+	            </button>
+	            <button id="borrar_empleados" class="btn btn-danger {{$pago->status == 0 ? 'hide' : ''}}" disabled><i class="fa fa-trash" aria-hidden="true"></i> Eliminar empleados</button>
+				<a href="{{url('pagar-nomina/'.$pago->id)}}" class="btn btn-success {{$pago->status != 2 ? 'hide' : ''}}" id="btn-pagar"><i class="fa fa-money" aria-hidden="true"></i> Pagar</a>
+			@endif
 			<a href="{{url('nominas/pdf/'.$pago->id)}}" target="_blank" class="btn btn-info" id="btn-pagar"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> Descargar PDF</a>
         </div>
     </div>
@@ -130,12 +133,12 @@ img#company-logo{
 	})*/
 
 	/*Método para reiniciar retenciones y deducciones*/
-	$('body').delegate('.reiniciar_deduccion, .reiniciar_retencion', 'click', function() {
+	$('body').delegate('.reiniciar_deduccion, .reiniciar_retencion, .reiniciar_concepto', 'click', function() {
 		var empleado_id = $(this).data('empleado_id');
 		var usuario_pago_id = $(this).data('usuario_pago_id');
-		var swl_txt = $(this).hasClass('reiniciar_deduccion') ? 'deducciones' : 'retenciones';
+		var swl_txt = $(this).data('txt_msg');
 		swal({
-            title: "¿Realmente desea reiniciar las "+swl_txt+" del empleado con el ID "+empleado_id+"?",
+            title: "¿Los registros sobre "+swl_txt+" del empleado con el ID "+empleado_id+" se reiniciarán, ¿desea continuar?",
             text: "¡Cuidado, se perderán "+swl_txt+ " asociadas a este empleado en esta lista!",
             html: true,
             type: "warning",
@@ -163,10 +166,10 @@ img#company-logo{
 	});
 
 	/*Empiezan los métodos para pagar la deducción*/
-    $('body').delegate('.pagar_deduccion, .pagar_retencion','click', function() {
+    $('body').delegate('.pagar_deduccion, .pagar_retencion, .pagar_concepto','click', function() {
 		var empleado_id = $(this).data('empleado_id');
 		var usuario_pago_id = $(this).data('usuario_pago_id');
-		var type = $(this).hasClass('pagar_deduccion') ? 'deducciones' : 'retenciones';
+		var type = $(this).data('txt_msg');
 
 		config = {
 	        'route'           : baseUrl.concat('/'+type+'/mostrar-detalles'),
@@ -179,8 +182,8 @@ img#company-logo{
 	});
 
 	//Checa qué deducciones están marcadas para pagar
-    $('body').delegate('#adjuntar-deduccion, #adjuntar-retencion ', 'click', function() {
-		var type = $(this).hasClass('btn-deduccion') ? 'deducciones' : 'retenciones';
+    $('body').delegate('#adjuntar-deduccion, #adjuntar-retencion, #adjuntar-concepto', 'click', function() {
+		var type = $(this).data('txt_msg');
 
         var detalles_ids = [];
         $("input.check_"+type).each(function() {
@@ -284,6 +287,41 @@ img#company-logo{
 		$('#form-pagar-retenciones input[name="usuario_pago_id"').val(config.usuario_pago_id);
 
 		$('#modal-pagar-retencion').modal()
+	}
+
+	function mostrar_conceptos_empleado(data, config) {
+		var rows = data.conceptos;
+		$('div.concepto-detalles tbody').children().remove();
+		//console.log(data);
+		if ( rows.length > 0 ) {
+            for (var key in rows) {
+                if (rows.hasOwnProperty(key)) {
+        			if (rows[key].status == 0) {
+            			$('div.concepto-detalles tbody').append(
+							"<tr>"+
+								"<td class='hide'>"+rows[key].id+"</td>"+
+								"<td>"+rows[key].id+"</td>"+
+								"<td>$"+rows[key].importe+"</td>"+
+								"<td>"+rows[key].comentarios+"</td>"+
+								"<td class='small-cell v-align-middle'>"+
+			                        "<div class='checkbox check-success'>"+
+			                        	"<input id='checkbox_c"+rows[key].id+"' type='checkbox' class='check_conceptos' value='1'>"+
+			                        	"<label for='checkbox_c"+rows[key].id+"'></label>"+
+			                        "</div>"+
+								"</td>"+
+							"</tr>"
+						);
+            		}
+                }
+            }//Deduccion for
+            //$('.').show();
+		} else {
+            $('div.concepto-detalles tbody').append("<tr><td colspan='5'>No hay conceptos pendientes por cobrar</td></tr>");
+		}
+
+		$('#form-pagar-conceptos input[name="usuario_pago_id"').val(config.usuario_pago_id);
+
+		$('#modal-pagar-concepto').modal()
 	}
 
 	/*Se agregan las clases necesarias para poder editar las celdas de la tabla y tomar asistencias*/

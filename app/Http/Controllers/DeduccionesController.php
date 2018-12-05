@@ -52,6 +52,30 @@ class DeduccionesController extends Controller
     }
 
     /**
+     * Elimina las deducciones y sus detalles de un empleado
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function eliminar(Request $req)
+    {
+        $row = Deduccion::find($req->id);
+
+        if (! $row ) { return response(['msg' => 'Registro no encontrado, trate de nuevo', 'status' => 'error'], 404); }
+
+        $row->detalles()->delete();
+
+        $row->delete();
+
+        $url = url($row->empleado->status == 1 ? 'empleados' : 'empleados/inactivos');
+
+        $empleado = Empleado::find($row->empleado->id);
+
+        $html = view('empleados.tablas.deducciones', compact(['empleado']))->render();
+
+        return response(['msg' => 'Deducción eliminada correctamente', 'status' => 'success', 'url' => $url, 'html' => $html], 200);
+    }
+
+    /**
      * Asigna uno o más deducciones a un usuario en su hoja de pago
      *
      * @return \Illuminate\Http\Response

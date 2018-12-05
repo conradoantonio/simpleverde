@@ -29,15 +29,14 @@ class PagosController extends Controller
 	public function index(Request $req)
 	{
         if (auth()->user()->privilegios && auth()->user()->privilegios->asistencias == 1) {
+            $modify = auth()->user()->privilegios->asistencias_mod_list == 1 ? 1 : 0;
 			$menu = $title = "Lista de asistencia";
 			$pagos = Pago::where('status', '!=', '0')->get();
 
-			#dd($pagos[0]->PagoUsuarios()->delete());
-
 			if ($req->ajax()){
-				return view('pagos.tabla', ['pagos' => $pagos]);
+				return view('pagos.tabla', compact(['pagos', 'modify']));
 			}
-			return view('pagos.pagos', ['pagos' => $pagos, 'menu' => $menu, 'title' => $title]);
+			return view('pagos.pagos', compact(['pagos', 'modify', 'menu', 'title']));
 		} else {
 			return view('errors.503');
 		}
@@ -53,9 +52,8 @@ class PagosController extends Controller
         if (auth()->user()->privilegios && auth()->user()->privilegios->historial_asistencias == 1) {
 			$menu = $title = "Historial";
 			$pagos = Pago::where('status', '0')->get();
-
 			
-			return view('pagos.pagos', ['pagos' => $pagos, 'menu' => $menu, 'title' => $title]);
+			return view('pagos.pagos', compact(['pagos', 'menu', 'title']));
 		} else {
 			return redirect()->to('/');
 		}
@@ -104,10 +102,17 @@ class PagosController extends Controller
 	 */
 	public function show($id, $reload = false)
 	{
+		#No tiene permiso para asistencias
+        if (auth()->user()->privilegios && (! auth()->user()->privilegios->asistencias == 1)) {
+			return view('errors.503');
+        }
+
 		$title = "Lista de asistencia";
 		$menu = "Lista de asistencia";
 		$pago = Pago::with(['empresa', 'servicio'])->findOrFail($id);
 		$trabajadores = Empleado::where('status',1)->get();
+        $modify = auth()->user()->privilegios->asistencias_mod_list == 1 ? 1 : 0;
+
 
 		$startTime = strtotime( $pago->fecha_inicio );
 		$endTime = strtotime( $pago->fecha_fin );
@@ -149,17 +154,25 @@ class PagosController extends Controller
 	    #if (($today >= $inicio_d) && ($today < $fin_d)){
 			foreach ($days as &$day) {
 				#echo $dia."<br>";
-				if ( $day['num'] == $dia[0] || $day['num'] == $dia[1] || $day['num'] == $dia[2] || $day['num'] == date('d') || $day['num'] == date('d', strtotime($today . ' +1 day')) ){
-		    		$day['edit'] = true;
-		    	}
+				if ($modify) {
+					if ( $day['num'] == $dia[0] || $day['num'] == $dia[1] || $day['num'] == $dia[2] || $day['num'] == date('d') || $day['num'] == date('d', strtotime($today . ' +1 day')) ){
+			    		$day['edit'] = true;
+			    	}
+				}
+
+				#Desbloquea cualquier día para ser editado
+				if (auth()->user()->privilegios->asistencias_mod_all_days == 1) {
+			    	$day['edit'] = true;
+				}
+					
 			}
 		#}
 
 		$asistencias = Asistencia::whereIn('usuario_pago_id',$pago->PagoUsuarios->pluck('id'))->get();
 		if ($reload) {
-			return view('pagos.tabla_asistencias', ['pago' => $pago, 'trabajadores' => $trabajadores, 'pago_id' => $id, 'dias' => $days, 'asistencias' => $asistencias]);
+			return view('pagos.tabla_asistencias', ['pago' => $pago, 'trabajadores' => $trabajadores, 'pago_id' => $id, 'dias' => $days, 'asistencias' => $asistencias, 'modify' => $modify]);
 		}
-		return view('pagos.detalle', ['pago' => $pago, 'trabajadores' => $trabajadores, 'pago_id' => $id, 'dias' => $days, 'menu' => $menu, 'title' => $title, 'asistencias' => $asistencias]);
+		return view('pagos.detalle', ['pago' => $pago, 'trabajadores' => $trabajadores, 'pago_id' => $id, 'dias' => $days, 'menu' => $menu, 'title' => $title, 'asistencias' => $asistencias, 'modify' => $modify]);
 	}
 
 	/**
@@ -183,6 +196,13 @@ class PagosController extends Controller
 					if ( count ($pago_usuario->deducciones_detalles ) ) {
 						foreach ($pago_usuario->deducciones_detalles as $detalle) {
 							$detalle->update(['usuario_pago_id' => null, 'status' => 0]);
+						}
+					}
+
+					//Desvincula los conceptos en caso de ser necesario
+					if ( count ($pago_usuario->conceptos ) ) {
+						foreach ($pago_usuario->conceptos as $concepto) {
+							$concepto->update(['usuario_pago_id' => null, 'status' => 0]);
 						}
 					}
 					$pago_usuario->asistencia()->delete();//Elimina las asistencias
@@ -251,6 +271,13 @@ class PagosController extends Controller
 						$detalle->update(['usuario_pago_id' => null, 'status' => 0]);
 					}
 				}
+
+				#Desvinculamos los conceptos
+				if ( count ($pago->conceptos ) ) {
+					foreach ($pago->conceptos as $concepto) {
+						$concepto->update(['usuario_pago_id' => null, 'status' => 0]);
+					}
+				}
 			}
 
 			$pago->delete();
@@ -293,7 +320,7 @@ class PagosController extends Controller
 
 	public function formulario() 
 	{
-        if (auth()->user()->privilegios && auth()->user()->privilegios->asistencias == 1) {
+        if (auth()->user()->privilegios && auth()->user()->privilegios->asistencias_mod_list == 1) {
 
 			$menu = "Lista de asistencia";
 			$title = "Formulario de asistencia";
@@ -411,9 +438,9 @@ class PagosController extends Controller
 			if ( count( $asistencia->pago->retenciones ) ) {
 				$importe = 0;
 			} elseif ( count( $asistencia->pago->deducciones_detalles ) ) {
-				$importe = ($asistencia->pago->pago->servicio->sueldo_diario_guardia*$asistencia->total) - ($asistencia->pago->deducciones_detalles->sum('cantidad'));
+				$importe = $asistencia->pago->conceptos->sum('importe') + ($asistencia->pago->pago->servicio->sueldo_diario_guardia*$asistencia->total) - ($asistencia->pago->deducciones_detalles->sum('cantidad'));
 			} else {
-				$importe = $asistencia->pago->pago->servicio->sueldo_diario_guardia*$asistencia->total;
+				$importe = $asistencia->pago->conceptos->sum('importe') + ($asistencia->pago->pago->servicio->sueldo_diario_guardia*$asistencia->total);
 			}
 
 			if ( count($asistencia->pago->deducciones_detalles) ) {
@@ -435,6 +462,7 @@ class PagosController extends Controller
 				'Empresa ' => $pago->empresa->nombre,
 				'Deducciones' => number_format($asistencia->pago->deducciones_detalles->sum('cantidad'),2),
 				'Retenciones' => number_format($asistencia->pago->retenciones->sum('importe'),2),
+				'Conceptos' => number_format($asistencia->pago->conceptos->sum('importe'),2),
 				'Notas' => $asistencia->pago->notas,
 				'Notas (Deducciones)' => $notas_ded
 			];
@@ -442,12 +470,12 @@ class PagosController extends Controller
 
         Excel::create("Resumen de asistencias del $intervalo", function($excel) use($array) {
             $excel->sheet('Hoja 1', function($sheet) use($array) {
-                $sheet->cells('A:L', function($cells) {
+                $sheet->cells('A:M', function($cells) {
                     $cells->setAlignment('center');
                     $cells->setValignment('center');
                 });
 
-                $sheet->cells('A1:L1', function($cells) {
+                $sheet->cells('A1:M1', function($cells) {
                     $cells->setFontWeight('bold');
                 });
 

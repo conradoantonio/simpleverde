@@ -167,6 +167,14 @@ $('body').delegate('.agregar_retencion','click', function() {
     $('div#md-retenciones').modal();
 });
 
+$('body').delegate('.agregar_concepto','click', function() {
+    var id = $(this).parent().parent().attr('id');
+
+    $("form#form-conceptos input[name='empleado_id']").val(id);
+
+    $('div#md-conceptos').modal();
+});
+
 $('body').delegate('.export_excel','click', function() {
     var redirect = $(this).data('redirect');
 
